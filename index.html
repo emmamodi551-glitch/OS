@@ -165,7 +165,9 @@
     <!-- Application Script -->
     <script>
         const SUPABASE_URL = 'https://qusewbhpndafjtxrcrme.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_cgzBCPVSLk7YJq6Z8Vv6jw_D9jV8b9';
+        // If your Supabase dashboard lists a legacy JWT anon key (starting with eyJ...), paste it here.
+        // Otherwise, you can find your project's classic anon public key under Project Settings -> API -> Project API keys.
+        const SUPABASE_ANON_KEY = 'YOUR_ANON_JWT_KEY_HERE';
 
         let supabaseClient = null;
         try {
@@ -443,7 +445,6 @@
             if (streakCount) streakCount.innerText = `Streak: ${state.streak} Days`;
         }
 
-        // Initialize app on load
         window.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
