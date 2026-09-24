@@ -16,6 +16,7 @@
                         accentGreen: '#10b981',
                         accentBlue: '#3b82f6',
                         accentGold: '#d97706',
+                        accentPurple: '#8b5cf6',
                     }
                 }
             }
@@ -61,26 +62,26 @@
                 <p id="loggedUserDisplay" class="text-xs text-slate-400">Profile Active</p>
             </div>
             <div class="flex items-center space-x-2">
-                <span id="badgeDisplay" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-1 rounded font-bold uppercase border border-slate-700">Free Tier</span>
+                <span id="badgeDisplay" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-1 rounded font-bold uppercase border border-slate-700">Basic Tier</span>
                 <button type="button" onclick="logout()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded-lg transition">Sign Out</button>
             </div>
         </header>
 
-        <!-- Phase Selector Banner (30, 60, 90 Days) -->
-        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg">
+        <!-- Phase Selector Banner (Distinct Tiers & Visuals) -->
+        <div id="phaseContainer" class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg transition-all duration-300">
             <div class="flex justify-between items-center mb-3">
-                <h2 class="text-xs font-semibold uppercase tracking-wider text-accentGold">Select Transformation Phase</h2>
-                <span onclick="openUpgradeModal('Full 90-Day Masterclass Access')" class="text-[11px] text-accentBlue cursor-pointer hover:underline">✨ Unlock Pro</span>
+                <h2 id="phaseHeaderTitle" class="text-xs font-semibold uppercase tracking-wider text-accentGold">Phase 1: Basic Reset (30 Days)</h2>
+                <span id="tierActionText" onclick="openUpgradeModal('Full 90-Day Masterclass Access')" class="text-[11px] text-accentBlue cursor-pointer hover:underline font-bold">✨ Upgrade to Pro</span>
             </div>
             <div class="grid grid-cols-3 gap-2">
                 <button type="button" onclick="setPhase(30)" id="phase30Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
-                    Phase 1<br><span class="text-[10px] font-normal text-slate-400">30 Days (Reset)</span>
+                    Basic<br><span class="text-[10px] font-normal text-slate-400">30 Days (Reset)[span_0](start_span)[span_0](end_span)</span>
                 </button>
                 <button type="button" onclick="setPhase(60)" id="phase60Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
-                    Phase 2<br><span class="text-[10px] font-normal text-slate-400">60 Days (Build) 🔒</span>
+                    Pro Build<br><span class="text-[10px] font-normal text-slate-400">60 Days 🔒[span_1](start_span)[span_1](end_span)</span>
                 </button>
                 <button type="button" onclick="setPhase(90)" id="phase90Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
-                    Phase 3<br><span class="text-[10px] font-normal text-slate-400">90 Days (Dominate) 🔒</span>
+                    Dominate<br><span class="text-[10px] font-normal text-slate-400">90 Days 🔒[span_2](start_span)[span_2](end_span)</span>
                 </button>
             </div>
             <p id="phaseDescription" class="text-xs text-slate-300 mt-3 italic text-center"></p>
@@ -144,7 +145,7 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                    <button type="button" id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                    <button type="button" id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Start</button>
                 </div>
             </div>
 
@@ -156,7 +157,7 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <span id="dw2Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                    <button type="button" id="dw2Btn" onclick="toggleTimer('dw2', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                    <button type="button" id="dw2Btn" onclick="toggleTimer('dw2', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Start</button>
                 </div>
             </div>
         </div>
@@ -172,13 +173,13 @@
     <div id="upgradeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-cardBg border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
             <div class="w-12 h-12 bg-amber-500/20 border border-amber-500/40 text-accentGold rounded-full flex items-center justify-center mx-auto text-xl font-bold">✨</div>
-            <h3 class="text-lg font-bold uppercase tracking-wider text-slate-100">Unlock Nuel Core Pro</h3>
-            <p id="modalFeatureTitle" class="text-xs text-slate-300">You selected a Pro-locked feature. Upgrade to unlock full access to Phase 2 (Build), Phase 3 (Dominate), historical analytics, and advanced performance protocols[span_0](start_span)[span_0](end_span).</p>
+            <h3 class="text-lg font-bold uppercase tracking-wider text-slate-100">Unlock Nuel Core Pro & Dominate</h3>
+            <p id="modalFeatureTitle" class="text-xs text-slate-300">Upgrade to unlock Phase 2 (Build), Phase 3 (Dominate), historical analytics, and advanced performance protocols[span_3](start_span)[span_3](end_span).</p>
             
             <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-left text-xs space-y-1 text-slate-300">
-                <p>✓ Phase 2 & Phase 3 Masterclasses[span_1](start_span)[span_1](end_span)</p>
+                <p>✓ Phase 2: Build Momentum (60 Days)[span_4](start_span)[span_4](end_span)</p>
+                <p>✓ Phase 3: Dominate & Lead (90 Days)[span_5](start_span)[span_5](end_span)</p>
                 <p>✓ Advanced 90-Day Trend Tracking</p>
-                <p>✓ Custom Focus Interval Timers</p>
             </div>
 
             <button type="button" onclick="simulateUpgrade()" class="w-full bg-accentGold hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition">Upgrade Now ($9.99)</button>
@@ -254,10 +255,10 @@
             
             const badge = document.getElementById('badgeDisplay');
             if (isPro) {
-                badge.innerText = "PRO ACTIVE";
-                badge.className = "text-[10px] bg-amber-950 border border-amber-600 text-accentGold px-2 py-1 rounded font-bold uppercase";
+                badge.innerText = "PRO / DOMINATE ACTIVE";
+                badge.className = "text-[10px] bg-purple-950 border border-purple-600 text-purple-300 px-2 py-1 rounded font-bold uppercase";
             } else {
-                badge.innerText = "Free Tier";
+                badge.innerText = "Basic Tier (Reset)";
                 badge.className = "text-[10px] bg-slate-800 text-slate-300 px-2 py-1 rounded font-bold uppercase border border-slate-700";
             }
             render();
@@ -265,7 +266,7 @@
 
         function setPhase(days) {
             if (days > 30 && !isPro) {
-                openUpgradeModal(`Phase ${days === 60 ? '2 (Build)' : '3 (Dominate)'} Masterclass`);
+                openUpgradeModal(`Phase ${days === 60 ? '2 (Build Momentum)' : '3 (Dominate & Lead)'}`);
                 return;
             }
             state.phase = days;
@@ -285,7 +286,7 @@
             isPro = true;
             localStorage.setItem('nuel_is_pro', 'true');
             closeUpgradeModal();
-            alert("🎉 Success! Nuel Core Pro features have been unlocked.");
+            alert("🎉 Success! Nuel Core Pro & Dominate features unlocked.");
             showDashboard();
         }
 
@@ -356,40 +357,10 @@
         }
 
         function render() {
+            // Dynamic Tier Styling based on active Phase
+            const container = document.getElementById('phaseContainer');
+            const headerTitle = document.getElementById('phaseHeaderTitle');
+            const actionText = document.getElementById('tierActionText');
+
             ['30', '60', '90'].forEach(d => {
-                const btn = document.getElementById(`phase${d}Btn`);
-                if (btn) {
-                    if (state.phase == d) {
-                        btn.className = "p-2.5 rounded-lg text-center border border-accentGold bg-amber-950/40 text-accentGold text-xs font-bold transition";
-                    } else {
-                        btn.className = "p-2.5 rounded-lg text-center border border-slate-700 bg-slate-900 text-slate-400 text-xs font-bold transition";
-                    }
-                }
-            });
-
-            const phaseDescs = {
-                30: "Phase 1: Reclaim Your Energy & Foundation (Reset)[span_2](start_span)[span_2](end_span)",
-                60: "Phase 2: Create Momentum & Structure Your Life (Build)[span_3](start_span)[span_3](end_span)",
-                90: "Phase 3: Master Your Mind, Body & Leadership (Dominate)[span_4](start_span)[span_4](end_span)"
-            };
-            document.getElementById('phaseDescription').innerText = phaseDescs[state.phase] || "";
-            document.getElementById('waterCount').innerText = state.water;
-            document.getElementById('exerciseMins').innerText = state.exerciseMins;
-
-            let scoreCount = 0;
-            if (state.water >= 64) scoreCount++;
-            if (state.exerciseMins >= 30) scoreCount++; // Milestone met when reaching 30+ minutes
-            if (state.noping_done) scoreCount++;
-            if (state.dw1_done) scoreCount++;
-            if (state.dw2_done) scoreCount++;
-            
-            let percentage = Math.round((scoreCount / 5) * 100);
-            document.getElementById('progressBar').style.width = `${percentage}%`;
-            document.getElementById('progressText').innerText = `${scoreCount} of 5 Milestones Completed (${percentage}%)`;
-            document.getElementById('streakCount').innerText = `Streak: ${state.streak} Days`;
-        }
-
-        window.addEventListener('DOMContentLoaded', initApp);
-    </script>
-</body>
-</html>
+                const btn =
