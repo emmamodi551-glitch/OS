@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuel Human OS | Daily Execution System</title>
+    <title>Nuel Core: Human OS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -15,6 +15,7 @@
                         cardBg: '#1e293b',
                         accentGreen: '#10b981',
                         accentBlue: '#3b82f6',
+                        accentGold: '#d97706',
                     }
                 }
             }
@@ -23,115 +24,146 @@
 </head>
 <body class="bg-darkBg text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 font-sans">
 
-    <!-- Header Section -->
-    <header class="w-full max-w-lg mb-6 text-center">
-        <h1 class="text-2xl sm:text-3xl font-bold tracking-wider text-slate-100 uppercase">Nuel Human OS</h1>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1">High-Performance Daily Execution & Focus Command Center</p>
+    <!-- AUTHENTICATION VIEW -->
+    <div id="authScreen" class="w-full max-w-md bg-cardBg border border-slate-700 rounded-2xl p-6 shadow-xl mt-12 hidden">
+        <div class="text-center mb-6">
+            <h1 class="text-xl font-bold tracking-wider text-slate-100 uppercase">Nuel Core: Human OS</h1>
+            <p class="text-xs text-slate-400 mt-1">Rebuild Your Mind. Optimize Your Body. Upgrade Your Life.</p>
+        </div>
+        <form id="authForm" onsubmit="handleAuth(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Email Address</label>
+                <input type="email" id="userEmailInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="name@example.com">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Password</label>
+                <input type="password" id="userPasswordInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="••••••••">
+            </div>
+            <button type="submit" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-bold py-2.5 rounded-lg text-sm transition">Access System</button>
+        </form>
+    </div>
+
+    <!-- MAIN DASHBOARD VIEW -->
+    <div id="dashboardScreen" class="w-full max-w-lg hidden space-y-5">
         
-        <!-- Overall Progress Bar -->
-        <div class="mt-4 bg-cardBg rounded-full h-3 p-0.5 border border-slate-700">
-            <div id="progressBar" class="bg-accentGreen h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
-        </div>
-        <p id="progressText" class="text-xs text-slate-400 mt-1">0 of 5 Milestones Completed (0%)</p>
-    </header>
+        <!-- Header & Profile Bar -->
+        <header class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
+            <div>
+                <h1 class="text-sm font-bold tracking-wide text-slate-100 uppercase">Human OS Dashboard</h1>
+                <p id="loggedUserDisplay" class="text-xs text-slate-400">Logged in as: user@nuel.com</p>
+            </div>
+            <button onclick="logout()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg transition">Sign Out</button>
+        </header>
 
-    <!-- Main Command Center Container -->
-    <main class="w-full max-w-lg space-y-4">
-
-        <!-- Info / System Guide Dropdown Toggle -->
+        <!-- Phase Selector Banner (30, 60, 90 Days) -->
         <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg">
-            <div class="flex items-center justify-between cursor-pointer" onclick="toggleGuide()">
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-accentGold mb-3">Select Transformation Phase</h2>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="setPhase(30)" id="phase30Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
+                    Phase 1<br><span class="text-[10px] font-normal text-slate-400">30 Days (Reset)</span>
+                </button>
+                <button onclick="setPhase(60)" id="phase60Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
+                    Phase 2<br><span class="text-[10px] font-normal text-slate-400">60 Days (Build)</span>
+                </button>
+                <button onclick="setPhase(90)" id="phase90Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
+                    Phase 3<br><span class="text-[10px] font-normal text-slate-400">90 Days (Dominate)</span>
+                </button>
+            </div>
+            <p id="phaseDescription" class="text-xs text-slate-300 mt-3 italic text-center"></p>
+        </div>
+
+        <!-- Progress Overview Card -->
+        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg text-center">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-semibold uppercase tracking-wide text-slate-300">Daily Execution Score</span>
+                <span id="streakCount" class="text-xs bg-emerald-950 border border-emerald-800 text-accentGreen px-2 py-0.5 rounded-full font-mono">Streak: 0 Days</span>
+            </div>
+            <div class="bg-slate-900 rounded-full h-3 p-0.5 border border-slate-700">
+                <div id="progressBar" class="bg-accentGreen h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+            <p id="progressText" class="text-xs text-slate-400 mt-2">0 of 5 Milestones Completed (0%)</p>
+        </div>
+
+        <!-- Core Trackers Container -->
+        <div class="space-y-3">
+            <!-- 1. Water Intake -->
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
                 <div>
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-accentBlue">System Guide</h2>
-                    <p class="text-xs text-slate-400">What is the Nuel Human OS?</p>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Water Intake</h3>
+                    <p class="text-xs text-slate-400">Target: <span id="waterCount">0</span> / 64 oz</p>
                 </div>
-                <span id="guideArrow" class="text-slate-400 transform transition-transform text-sm font-bold">▼</span>
+                <div class="flex items-center space-x-2">
+                    <button onclick="updateWater(-8)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
+                    <button onclick="updateWater(8)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+</button>
+                </div>
             </div>
-            <div id="guideContent" class="hidden mt-3 pt-3 border-t border-slate-700 text-xs text-slate-300 space-y-2 leading-relaxed">
-                <p>The <strong>Nuel Human OS</strong> is a disciplined daily framework designed to optimize cognitive output, physical vitality, and digital boundaries. By executing these four key pillars daily, you eliminate friction and ensure compound progress:</p>
-                <ul class="list-disc pl-4 space-y-1 text-slate-400">
-                    <li><strong>Water Intake (64+ oz):</strong> Maintains optimal hydration for peak cognitive focus and physical energy.</li>
-                    <li><strong>Daily Exercise:</strong> Keeps the physical engine running through bodyweight work, running, or cycling.</li>
-                    <li><strong>No-Ping Hour:</strong> Protects your attention span by cutting off notifications, alerts, and digital noise for 60 minutes.</li>
-                    <li><strong>90-Minute Deep Work (2x):</strong> Harnesses ultra-focused blocks of uninterrupted time for high-impact creation.</li>
-                </ul>
+
+            <!-- 2. Exercise -->
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg cursor-pointer" onclick="togglePillar('exercise')">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Daily Exercise</h3>
+                    <p class="text-xs text-slate-400">Bodyweight, Run, or Ride</p>
+                </div>
+                <div id="exerciseCheck" class="w-7 h-7 rounded-lg border-2 border-slate-600 flex items-center justify-center transition">
+                    <span class="text-accentGreen text-lg hidden">✓</span>
+                </div>
+            </div>
+
+            <!-- 3. No-Ping Hour -->
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">No-Ping Hour</h3>
+                    <p id="nopingStatus" class="text-xs text-slate-400">Zero notifications</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="nopingTimer" class="font-mono text-sm text-slate-200">60:00</span>
+                    <button id="nopingBtn" onclick="toggleTimer('noping', 60)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                </div>
+            </div>
+
+            <!-- 4. Deep Work #1 -->
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #1 (90m)</h3>
+                    <p id="dw1Status" class="text-xs text-slate-400">Primary focus block</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
+                    <button id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                </div>
+            </div>
+
+            <!-- 5. Deep Work #2 -->
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #2 (90m)</h3>
+                    <p id="dw2Status" class="text-xs text-slate-400">Secondary focus block</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="dw2Timer" class="font-mono text-sm text-slate-200">90:00</span>
+                    <button id="dw2Btn" onclick="toggleTimer('dw2', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                </div>
             </div>
         </div>
 
-        <!-- 1. Water Intake Module -->
-        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
-            <div>
-                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Water Intake</h2>
-                <p class="text-xs text-slate-400">Target: <span id="waterCount">0</span> / 64 oz</p>
-            </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="updateWater(-8)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
-                <button onclick="updateWater(8)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+</button>
-            </div>
-        </div>
+        <!-- Footer Actions -->
+        <footer class="text-center pt-2 pb-6">
+            <button onclick="resetDay()" class="text-xs text-slate-500 hover:text-slate-300 underline transition">Reset Today's Progress</button>
+        </footer>
+    </div>
 
-        <!-- 2. Exercise Module -->
-        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between cursor-pointer" onclick="togglePillar('exercise')">
-            <div>
-                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Daily Exercise</h2>
-                <p class="text-xs text-slate-400">Bodyweight, Run, or Ride</p>
-            </div>
-            <div id="exerciseCheck" class="w-7 h-7 rounded-lg border-2 border-slate-600 flex items-center justify-center transition">
-                <span class="text-accentGreen text-lg hidden">✓</span>
-            </div>
-        </div>
-
-        <!-- 3. No-Ping Hour Module -->
-        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
-            <div>
-                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">No-Ping Hour</h2>
-                <p id="nopingStatus" class="text-xs text-slate-400">Zero notifications or distractions</p>
-            </div>
-            <div class="flex items-center space-x-2">
-                <span id="nopingTimer" class="font-mono text-sm text-slate-200">60:00</span>
-                <button id="nopingBtn" onclick="toggleTimer('noping', 60)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
-            </div>
-        </div>
-
-        <!-- 4. Deep Work Session 1 (90m) -->
-        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
-            <div>
-                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #1 (90m)</h2>
-                <p id="dw1Status" class="text-xs text-slate-400">Uninterrupted creation block</p>
-            </div>
-            <div class="flex items-center space-x-2">
-                <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                <button id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
-            </div>
-        </div>
-
-        <!-- 5. Deep Work Session 2 (90m) -->
-        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
-            <div>
-                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #2 (90m)</h2>
-                <p id="dw2Status" class="text-xs text-slate-400">Secondary execution block</p>
-            </div>
-            <div class="flex items-center space-x-2">
-                <span id="dw2Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                <button id="dw2Btn" onclick="toggleTimer('dw2', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer Action -->
-    <footer class="w-full max-w-lg mt-6 text-center">
-        <button onclick="resetDay()" class="text-xs text-slate-500 hover:text-slate-300 underline transition">Reset Daily Data</button>
-    </footer>
-
-    <!-- App Logic Script -->
+    <!-- Application Script -->
     <script>
+        let currentUser = localStorage.getItem('nuel_current_user');
+        
         let state = {
+            phase: 30,
             water: 0,
             exercise: false,
             nopingDone: false,
             dw1Done: false,
-            dw2Done: false
+            dw2Done: false,
+            streak: 0
         };
 
         let activeTimers = {
@@ -140,41 +172,66 @@
             dw2: { time: 90 * 60, running: false, interval: null }
         };
 
-        function toggleGuide() {
-            const content = document.getElementById('guideContent');
-            const arrow = document.getElementById('guideArrow');
-            content.classList.toggle('hidden');
-            arrow.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        function checkAuth() {
+            if (!currentUser) {
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('dashboardScreen').classList.add('hidden');
+            } else {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('dashboardScreen').classList.remove('hidden');
+                document.getElementById('loggedUserDisplay').innerText = `Account: ${currentUser}`;
+                loadUserData();
+            }
         }
 
-        function loadData() {
-            const saved = localStorage.getItem('nuel_human_os_state');
+        function handleAuth(event) {
+            event.preventDefault();
+            const email = document.getElementById('userEmailInput').value;
+            localStorage.setItem('nuel_current_user', email);
+            currentUser = email;
+            checkAuth();
+        }
+
+        function logout() {
+            localStorage.removeItem('nuel_current_user');
+            currentUser = null;
+            checkAuth();
+        }
+
+        function loadUserData() {
+            const saved = localStorage.getItem(`nuel_state_${currentUser}`);
             if (saved) {
                 state = JSON.parse(saved);
             }
             render();
         }
 
-        function saveData() {
-            localStorage.setItem('nuel_human_os_state', JSON.stringify(state));
-            render();
+        function saveUserData() {
+            if (currentUser) {
+                localStorage.setItem(`nuel_state_${currentUser}`, JSON.stringify(state));
+                render();
+            }
+        }
+
+        function setPhase(days) {
+            state.phase = days;
+            saveUserData();
         }
 
         function updateWater(amount) {
             state.water = Math.max(0, state.water + amount);
-            saveData();
+            saveUserData();
         }
 
         function togglePillar(pillar) {
             if (pillar === 'exercise') {
                 state.exercise = !state.exercise;
             }
-            saveData();
+            saveUserData();
         }
 
         function toggleTimer(id, defaultMinutes) {
             let t = activeTimers[id];
-            
             if (t.running) {
                 clearInterval(t.interval);
                 t.running = false;
@@ -202,7 +259,7 @@
                         if (id === 'noping') state.nopingDone = true;
                         if (id === 'dw1') state.dw1Done = true;
                         if (id === 'dw2') state.dw2Done = true;
-                        saveData();
+                        saveUserData();
                     }
                 }, 1000);
             }
@@ -216,16 +273,39 @@
         }
 
         function resetDay() {
-            if(confirm("Are you sure you want to reset today's progress?")) {
-                localStorage.removeItem('nuel_human_os_state');
-                state = { water: 0, exercise: false, nopingDone: false, dw1Done: false, dw2Done: false };
+            if(confirm("Reset today's tracking data?")) {
+                state.water = 0;
+                state.exercise = false;
+                state.nopingDone = false;
+                state.dw1Done = false;
+                state.dw2Done = false;
+                saveUserData();
                 location.reload();
             }
         }
 
         function render() {
+            // Phase buttons styling
+            ['30', '60', '90'].forEach(d => {
+                const btn = document.getElementById(`phase${d}Btn`);
+                if (state.phase == d) {
+                    btn.className = "p-2.5 rounded-lg text-center border border-accentGold bg-amber-950/40 text-accentGold text-xs font-bold transition";
+                } else {
+                    btn.className = "p-2.5 rounded-lg text-center border border-slate-700 bg-slate-900 text-slate-400 text-xs font-bold transition";
+                }
+            });
+
+            const phaseDescs = {
+                30: "Phase 1: Reclaim Your Energy & Foundation (Reset)",
+                60: "Phase 2: Create Momentum & Structure Your Life (Build)",
+                90: "Phase 3: Master Your Mind, Body & Leadership (Dominate)"
+            };
+            document.getElementById('phaseDescription').innerText = phaseDescs[state.phase];
+
+            // Water
             document.getElementById('waterCount').innerText = state.water;
 
+            // Exercise UI Check
             const exCheck = document.getElementById('exerciseCheck');
             const exIcon = exCheck.querySelector('span');
             if (state.exercise) {
@@ -236,6 +316,7 @@
                 exIcon.classList.add('hidden');
             }
 
+            // Score Calculation
             let scoreCount = 0;
             if (state.water >= 64) scoreCount++;
             if (state.exercise) scoreCount++;
@@ -246,9 +327,15 @@
             let percentage = Math.round((scoreCount / 5) * 100);
             document.getElementById('progressBar').style.width = `${percentage}%`;
             document.getElementById('progressText').innerText = `${scoreCount} of 5 Milestones Completed (${percentage}%)`;
+            
+            if (percentage === 100 && state.streak === 0) {
+                state.streak = 1;
+            }
+            document.getElementById('streakCount').innerText = `Streak: ${state.streak} Days`;
         }
 
-        loadData();
+        // Initialize state on load
+        checkAuth();
     </script>
 </body>
 </html>
