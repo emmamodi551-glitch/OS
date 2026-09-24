@@ -100,7 +100,7 @@
 
         <!-- Core Trackers Container -->
         <div class="space-y-3">
-            <!-- 1. Water Intake -->
+            <!-- 1. Water Intake Module -->
             <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
                 <div>
                     <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Water Intake</h3>
@@ -112,18 +112,19 @@
                 </div>
             </div>
 
-            <!-- 2. Exercise -->
-            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg cursor-pointer" onclick="togglePillar('exercise')">
+            <!-- 2. Physical Execution (Duration Module) -->
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
                 <div>
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Daily Exercise</h3>
-                    <p class="text-xs text-slate-400">Bodyweight, Run, or Ride</p>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Physical Training</h3>
+                    <p class="text-xs text-slate-400">Target: <span id="exerciseMins">0</span> / 30 mins (Run/Ride/Bodyweight)</p>
                 </div>
-                <div id="exerciseCheck" class="w-7 h-7 rounded-lg border-2 border-slate-600 flex items-center justify-center transition">
-                    <span class="text-accentGreen text-lg hidden">✓</span>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="updateExercise(-10)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
+                    <button type="button" onclick="updateExercise(15)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+15m</button>
                 </div>
             </div>
 
-            <!-- 3. No-Ping Hour -->
+            <!-- 3. No-Ping Hour Module -->
             <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
                 <div>
                     <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">No-Ping Hour</h3>
@@ -135,7 +136,7 @@
                 </div>
             </div>
 
-            <!-- 4. Deep Work #1 -->
+            <!-- 4. Deep Work #1 Module -->
             <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
                 <div>
                     <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #1 (90m)</h3>
@@ -147,7 +148,7 @@
                 </div>
             </div>
 
-            <!-- 5. Deep Work #2 -->
+            <!-- 5. Deep Work #2 Module -->
             <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
                 <div>
                     <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #2 (90m)</h3>
@@ -193,7 +194,7 @@
         let state = {
             phase: 30,
             water: 0,
-            exercise: false,
+            exerciseMins: 0,
             noping_done: false,
             dw1_done: false,
             dw2_done: false,
@@ -251,7 +252,6 @@
             document.getElementById('dashboardScreen').classList.remove('hidden');
             document.getElementById('loggedUserDisplay').innerText = `Account: ${currentUser}`;
             
-            // Update Pro badge
             const badge = document.getElementById('badgeDisplay');
             if (isPro) {
                 badge.innerText = "PRO ACTIVE";
@@ -301,8 +301,8 @@
             saveUserData();
         }
 
-        function togglePillar(pillar) {
-            if (pillar === 'exercise') state.exercise = !state.exercise;
+        function updateExercise(amount) {
+            state.exerciseMins = Math.max(0, state.exerciseMins + amount);
             saveUserData();
         }
 
@@ -347,7 +347,7 @@
         function resetDay() {
             if(confirm("Reset today's tracking data?")) {
                 state.water = 0;
-                state.exercise = false;
+                state.exerciseMins = 0;
                 state.noping_done = false;
                 state.dw1_done = false;
                 state.dw2_done = false;
@@ -374,22 +374,11 @@
             };
             document.getElementById('phaseDescription').innerText = phaseDescs[state.phase] || "";
             document.getElementById('waterCount').innerText = state.water;
-
-            const exCheck = document.getElementById('exerciseCheck');
-            if (exCheck) {
-                const exIcon = exCheck.querySelector('span');
-                if (state.exercise) {
-                    exCheck.classList.add('border-accentGreen', 'bg-emerald-950');
-                    if (exIcon) exIcon.classList.remove('hidden');
-                } else {
-                    exCheck.classList.remove('border-accentGreen', 'bg-emerald-950');
-                    if (exIcon) exIcon.classList.add('hidden');
-                }
-            }
+            document.getElementById('exerciseMins').innerText = state.exerciseMins;
 
             let scoreCount = 0;
             if (state.water >= 64) scoreCount++;
-            if (state.exercise) scoreCount++;
+            if (state.exerciseMins >= 30) scoreCount++; // Milestone met when reaching 30+ minutes
             if (state.noping_done) scoreCount++;
             if (state.dw1_done) scoreCount++;
             if (state.dw2_done) scoreCount++;
