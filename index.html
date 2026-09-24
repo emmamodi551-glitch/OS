@@ -50,6 +50,10 @@
             <button type="submit" id="authSubmitBtn" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-bold py-2.5 rounded-lg text-sm transition">Sign In</button>
             <p id="authErrorMsg" class="text-xs text-red-400 text-center mt-2"></p>
         </form>
+
+        <div class="mt-6 text-center border-t border-slate-700 pt-4">
+            <button type="button" onclick="forceResetStorage()" class="text-[11px] text-slate-500 hover:text-slate-300 underline">Clear Browser Cache & Reset</button>
+        </div>
     </div>
 
     <!-- MAIN DASHBOARD VIEW -->
@@ -67,7 +71,7 @@
             </div>
         </header>
 
-        <!-- Phase Selector Banner (Distinct Tiers & Visuals) -->
+        <!-- Phase Selector Banner -->
         <div id="phaseContainer" class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg transition-all duration-300">
             <div class="flex justify-between items-center mb-3">
                 <h2 id="phaseHeaderTitle" class="text-xs font-semibold uppercase tracking-wider text-accentGold">Phase 1: Basic Reset (30 Days)</h2>
@@ -113,7 +117,7 @@
                 </div>
             </div>
 
-            <!-- 2. Physical Execution (Duration Module) -->
+            <!-- 2. Physical Execution Module -->
             <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
                 <div>
                     <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Physical Training</h3>
@@ -225,14 +229,20 @@
 
         function handleAuthSubmit(event) {
             event.preventDefault();
-            const email = document.getElementById('userEmailInput').value;
-            if (!email) return;
+            const emailInput = document.getElementById('userEmailInput').value.trim();
+            if (!emailInput) return;
 
-            currentUser = email;
-            localStorage.setItem('nuel_current_user', email);
+            currentUser = emailInput;
+            localStorage.setItem('nuel_current_user', emailInput);
             
-            const savedState = localStorage.getItem(`nuel_state_${email}`);
-            if (savedState) state = JSON.parse(savedState);
+            const savedState = localStorage.getItem(`nuel_state_${emailInput}`);
+            if (savedState) {
+                try {
+                    state = JSON.parse(savedState);
+                } catch(e) {
+                    console.error("Error parsing user state", e);
+                }
+            }
 
             showDashboard();
         }
@@ -241,6 +251,13 @@
             localStorage.removeItem('nuel_current_user');
             currentUser = null;
             showAuthScreen();
+        }
+
+        function forceResetStorage() {
+            if (confirm("Clear local cache and restart session?")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
 
         function showAuthScreen() {
@@ -357,10 +374,66 @@
         }
 
         function render() {
-            // Dynamic Tier Styling based on active Phase
             const container = document.getElementById('phaseContainer');
             const headerTitle = document.getElementById('phaseHeaderTitle');
             const actionText = document.getElementById('tierActionText');
 
             ['30', '60', '90'].forEach(d => {
-                const btn =
+                const btn = document.getElementById(`phase${d}Btn`);
+                if (btn) {
+                    if (state.phase == d) {
+                        if (d == '30') btn.className = "p-2.5 rounded-lg text-center border border-blue-500 bg-blue-950/40 text-blue-400 text-xs font-bold transition shadow-sm";
+                        if (d == '60') btn.className = "p-2.5 rounded-lg text-center border border-accentGold bg-amber-950/40 text-accentGold text-xs font-bold transition shadow-sm";
+                        if (d == '90') btn.className = "p-2.5 rounded-lg text-center border border-purple-500 bg-purple-950/40 text-purple-400 text-xs font-bold transition shadow-sm";
+                    } else {
+                        btn.className = "p-2.5 rounded-lg text-center border border-slate-700 bg-slate-900 text-slate-400 text-xs font-bold transition";
+                    }
+                }
+            });
+
+            if (state.phase == 30) {
+                container.className = "bg-cardBg border border-blue-500/50 rounded-xl p-4 shadow-lg transition-all duration-300";
+                headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-blue-400";
+                headerTitle.innerText = "Phase 1: Basic Reset (30 Days)[span_6](start_span)[span_6](end_span)";
+                actionText.className = isPro ? "hidden" : "text-[11px] text-blue-400 cursor-pointer hover:underline font-bold";
+                actionText.innerText = isPro ? "" : "✨ Upgrade to Pro";
+            } else if (state.phase == 60) {
+                container.className = "bg-cardBg border border-accentGold/50 rounded-xl p-4 shadow-lg transition-all duration-300";
+                headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-accentGold";
+                headerTitle.innerText = "Phase 2: Pro Build Momentum (60 Days)[span_7](start_span)[span_7](end_span)";
+                actionText.className = "text-[11px] text-accentGold cursor-pointer hover:underline font-bold";
+                actionText.innerText = "🔥 Pro Tier Active";
+            } else if (state.phase == 90) {
+                container.className = "bg-cardBg border border-purple-500/50 rounded-xl p-4 shadow-lg transition-all duration-300";
+                headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-purple-400";
+                headerTitle.innerText = "Phase 3: Dominate & Lead (90 Days)[span_8](start_span)[span_8](end_span)";
+                actionText.className = "text-[11px] text-purple-400 cursor-pointer hover:underline font-bold";
+                actionText.innerText = "👑 Master Level Active";
+            }
+
+            const phaseDescs = {
+                30: "Phase 1: Reclaim Your Energy & Foundation (Reset)[span_9](start_span)[span_9](end_span) — Perfect for breaking burnout and building a bulletproof daily routine.",
+                60: "Phase 2: Create Momentum & Structure Your Life (Build)[span_10](start_span)[span_10](end_span) — Advanced protocols, habit mastery, and sustained high performance.",
+                90: "Phase 3: Master Your Mind, Body & Leadership (Dominate)[span_11](start_span)[span_11](end_span) — Ultimate bio-optimization, strategic focus, and peak personal command."
+            };
+            document.getElementById('phaseDescription').innerText = phaseDescs[state.phase] || "";
+            document.getElementById('waterCount').innerText = state.water;
+            document.getElementById('exerciseMins').innerText = state.exerciseMins;
+
+            let scoreCount = 0;
+            if (state.water >= 64) scoreCount++;
+            if (state.exerciseMins >= 30) scoreCount++;
+            if (state.noping_done) scoreCount++;
+            if (state.dw1_done) scoreCount++;
+            if (state.dw2_done) scoreCount++;
+            
+            let percentage = Math.round((scoreCount / 5) * 100);
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+            document.getElementById('progressText').innerText = `${scoreCount} of 5 Milestones Completed (${percentage}%)`;
+            document.getElementById('streakCount').innerText = `Streak: ${state.streak} Days`;
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
