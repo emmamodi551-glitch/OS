@@ -198,6 +198,8 @@
             const loginBtn = document.getElementById('loginTabBtn');
             const signupBtn = document.getElementById('signupTabBtn');
             const submitBtn = document.getElementById('authSubmitBtn');
+            const errorEl = document.getElementById('authErrorMsg');
+            if (errorEl) errorEl.innerText = "";
 
             if (isSignUpMode) {
                 signupBtn.className = "flex-1 py-2 rounded-md bg-accentBlue text-white transition";
@@ -246,8 +248,13 @@
                 if (error) {
                     errorEl.innerText = error.message;
                 } else {
-                    alert("Account created successfully! You can now sign in.");
-                    switchAuthTab('login');
+                    if (data.session) {
+                        currentAuthUser = data.session.user;
+                        showDashboard();
+                    } else {
+                        alert("Account created successfully! You can now sign in.");
+                        switchAuthTab('login');
+                    }
                 }
             } else {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -285,7 +292,7 @@
                     .from('user_progress')
                     .select('*')
                     .eq('id', currentAuthUser.id)
-                    .single();
+                    .maybeSingle();
 
                 if (data) {
                     state = data;
@@ -397,12 +404,4 @@
                     if (state.phase == d) {
                         btn.className = "p-2.5 rounded-lg text-center border border-accentGold bg-amber-950/40 text-accentGold text-xs font-bold transition";
                     } else {
-                        btn.className = "p-2.5 rounded-lg text-center border border-slate-700 bg-slate-900 text-slate-400 text-xs font-bold transition";
-                    }
-                }
-            });
-
-            const phaseDescs = {
-                30: "Phase 1: Reclaim Your Energy & Foundation (Reset)",
-                60: "Phase 2: Create Momentum & Structure Your Life (Build)",
-                90: "Phase 3: Master Your Mind,
+                        btn.className = "p-2.5 rounded-lg text-center border border-slate-700 bg-slate-900 text-slate
