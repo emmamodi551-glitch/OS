@@ -66,26 +66,26 @@
                 <p id="loggedUserDisplay" class="text-xs text-slate-400">Profile Active</p>
             </div>
             <div class="flex items-center space-x-2">
-                <span id="badgeDisplay" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-1 rounded font-bold uppercase border border-slate-700">Basic Tier</span>
+                <span id="badgeDisplay" class="text-[10px] bg-purple-950 border border-purple-600 text-purple-300 px-2 py-1 rounded font-bold uppercase">All Tiers Unlocked</span>
                 <button type="button" onclick="logout()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded-lg transition">Sign Out</button>
             </div>
         </header>
 
-        <!-- Phase Selector Banner -->
+        <!-- Phase Selector Banner (All Unlocked for Free) -->
         <div id="phaseContainer" class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg transition-all duration-300">
             <div class="flex justify-between items-center mb-3">
-                <h2 id="phaseHeaderTitle" class="text-xs font-semibold uppercase tracking-wider text-accentGold">Phase 1: Basic Reset (30 Days)</h2>
-                <span id="tierActionText" onclick="openUpgradeModal('Full 90-Day Masterclass Access')" class="text-[11px] text-accentBlue cursor-pointer hover:underline font-bold">✨ Upgrade to Pro</span>
+                <h2 id="phaseHeaderTitle" class="text-xs font-semibold uppercase tracking-wider text-accentGold">Phase 1: Reset (30 Days)</h2>
+                <span class="text-[11px] text-accentGreen font-bold">🟢 Free Access Active</span>
             </div>
             <div class="grid grid-cols-3 gap-2">
                 <button type="button" onclick="setPhase(30)" id="phase30Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
-                    Basic<br><span class="text-[10px] font-normal text-slate-400">30 Days (Reset)[span_0](start_span)[span_0](end_span)</span>
+                    Phase 1<br><span class="text-[10px] font-normal text-slate-400">30 Days (Reset)[span_0](start_span)[span_0](end_span)</span>
                 </button>
                 <button type="button" onclick="setPhase(60)" id="phase60Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
-                    Pro Build<br><span class="text-[10px] font-normal text-slate-400">60 Days 🔒[span_1](start_span)[span_1](end_span)</span>
+                    Phase 2<br><span class="text-[10px] font-normal text-slate-400">60 Days (Build)[span_1](start_span)[span_1](end_span)</span>
                 </button>
                 <button type="button" onclick="setPhase(90)" id="phase90Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
-                    Dominate<br><span class="text-[10px] font-normal text-slate-400">90 Days 🔒[span_2](start_span)[span_2](end_span)</span>
+                    Phase 3<br><span class="text-[10px] font-normal text-slate-400">90 Days (Dominate)[span_2](start_span)[span_2](end_span)</span>
                 </button>
             </div>
             <p id="phaseDescription" class="text-xs text-slate-300 mt-3 italic text-center"></p>
@@ -168,33 +168,13 @@
 
         <!-- Footer Actions -->
         <footer class="text-center pt-2 pb-6 space-y-2">
-            <button type="button" onclick="openUpgradeModal('Advanced Analytics & 90-Day Trends')" class="text-xs text-accentBlue hover:underline block mx-auto">📊 View Pro Analytics & Historical Charts</button>
             <button type="button" onclick="resetDay()" class="text-xs text-slate-500 hover:text-slate-300 underline transition block mx-auto">Reset Today's Progress</button>
         </footer>
-    </div>
-
-    <!-- PRO UPGRADE MODAL -->
-    <div id="upgradeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-cardBg border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
-            <div class="w-12 h-12 bg-amber-500/20 border border-amber-500/40 text-accentGold rounded-full flex items-center justify-center mx-auto text-xl font-bold">✨</div>
-            <h3 class="text-lg font-bold uppercase tracking-wider text-slate-100">Unlock Nuel Core Pro & Dominate</h3>
-            <p id="modalFeatureTitle" class="text-xs text-slate-300">Upgrade to unlock Phase 2 (Build), Phase 3 (Dominate), historical analytics, and advanced performance protocols[span_3](start_span)[span_3](end_span).</p>
-            
-            <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-left text-xs space-y-1 text-slate-300">
-                <p>✓ Phase 2: Build Momentum (60 Days)[span_4](start_span)[span_4](end_span)</p>
-                <p>✓ Phase 3: Dominate & Lead (90 Days)[span_5](start_span)[span_5](end_span)</p>
-                <p>✓ Advanced 90-Day Trend Tracking</p>
-            </div>
-
-            <button type="button" onclick="simulateUpgrade()" class="w-full bg-accentGold hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition">Upgrade Now ($9.99)</button>
-            <button type="button" onclick="closeUpgradeModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-xl text-xs transition">Maybe Later</button>
-        </div>
     </div>
 
     <!-- Application Script -->
     <script>
         let currentUser = localStorage.getItem('nuel_current_user');
-        let isPro = localStorage.getItem('nuel_is_pro') === 'true';
 
         let state = {
             phase: 30,
@@ -269,42 +249,12 @@
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('dashboardScreen').classList.remove('hidden');
             document.getElementById('loggedUserDisplay').innerText = `Account: ${currentUser}`;
-            
-            const badge = document.getElementById('badgeDisplay');
-            if (isPro) {
-                badge.innerText = "PRO / DOMINATE ACTIVE";
-                badge.className = "text-[10px] bg-purple-950 border border-purple-600 text-purple-300 px-2 py-1 rounded font-bold uppercase";
-            } else {
-                badge.innerText = "Basic Tier (Reset)";
-                badge.className = "text-[10px] bg-slate-800 text-slate-300 px-2 py-1 rounded font-bold uppercase border border-slate-700";
-            }
             render();
         }
 
         function setPhase(days) {
-            if (days > 30 && !isPro) {
-                openUpgradeModal(`Phase ${days === 60 ? '2 (Build Momentum)' : '3 (Dominate & Lead)'}`);
-                return;
-            }
             state.phase = days;
             saveUserData();
-        }
-
-        function openUpgradeModal(featureName) {
-            document.getElementById('modalFeatureTitle').innerText = `Accessing "${featureName}" requires Nuel Core Pro. Unlock advanced phase protocols and metrics instantly.`;
-            document.getElementById('upgradeModal').classList.remove('hidden');
-        }
-
-        function closeUpgradeModal() {
-            document.getElementById('upgradeModal').classList.add('hidden');
-        }
-
-        function simulateUpgrade() {
-            isPro = true;
-            localStorage.setItem('nuel_is_pro', 'true');
-            closeUpgradeModal();
-            alert("🎉 Success! Nuel Core Pro & Dominate features unlocked.");
-            showDashboard();
         }
 
         function saveUserData() {
@@ -376,7 +326,6 @@
         function render() {
             const container = document.getElementById('phaseContainer');
             const headerTitle = document.getElementById('phaseHeaderTitle');
-            const actionText = document.getElementById('tierActionText');
 
             ['30', '60', '90'].forEach(d => {
                 const btn = document.getElementById(`phase${d}Btn`);
@@ -394,27 +343,21 @@
             if (state.phase == 30) {
                 container.className = "bg-cardBg border border-blue-500/50 rounded-xl p-4 shadow-lg transition-all duration-300";
                 headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-blue-400";
-                headerTitle.innerText = "Phase 1: Basic Reset (30 Days)[span_6](start_span)[span_6](end_span)";
-                actionText.className = isPro ? "hidden" : "text-[11px] text-blue-400 cursor-pointer hover:underline font-bold";
-                actionText.innerText = isPro ? "" : "✨ Upgrade to Pro";
+                headerTitle.innerText = "Phase 1: Reset (30 Days)[span_3](start_span)[span_3](end_span)";
             } else if (state.phase == 60) {
                 container.className = "bg-cardBg border border-accentGold/50 rounded-xl p-4 shadow-lg transition-all duration-300";
                 headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-accentGold";
-                headerTitle.innerText = "Phase 2: Pro Build Momentum (60 Days)[span_7](start_span)[span_7](end_span)";
-                actionText.className = "text-[11px] text-accentGold cursor-pointer hover:underline font-bold";
-                actionText.innerText = "🔥 Pro Tier Active";
+                headerTitle.innerText = "Phase 2: Build Momentum (60 Days)[span_4](start_span)[span_4](end_span)";
             } else if (state.phase == 90) {
                 container.className = "bg-cardBg border border-purple-500/50 rounded-xl p-4 shadow-lg transition-all duration-300";
                 headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-purple-400";
-                headerTitle.innerText = "Phase 3: Dominate & Lead (90 Days)[span_8](start_span)[span_8](end_span)";
-                actionText.className = "text-[11px] text-purple-400 cursor-pointer hover:underline font-bold";
-                actionText.innerText = "👑 Master Level Active";
+                headerTitle.innerText = "Phase 3: Dominate & Lead (90 Days)[span_5](start_span)[span_5](end_span)";
             }
 
             const phaseDescs = {
-                30: "Phase 1: Reclaim Your Energy & Foundation (Reset)[span_9](start_span)[span_9](end_span) — Perfect for breaking burnout and building a bulletproof daily routine.",
-                60: "Phase 2: Create Momentum & Structure Your Life (Build)[span_10](start_span)[span_10](end_span) — Advanced protocols, habit mastery, and sustained high performance.",
-                90: "Phase 3: Master Your Mind, Body & Leadership (Dominate)[span_11](start_span)[span_11](end_span) — Ultimate bio-optimization, strategic focus, and peak personal command."
+                30: "Phase 1: Reclaim Your Energy & Foundation (Reset)[span_6](start_span)[span_6](end_span) — Perfect for breaking burnout and building a bulletproof daily routine.",
+                60: "Phase 2: Create Momentum & Structure Your Life (Build)[span_7](start_span)[span_7](end_span) — Advanced protocols, habit mastery, and sustained high performance.",
+                90: "Phase 3: Master Your Mind, Body & Leadership (Dominate)[span_8](start_span)[span_8](end_span) — Ultimate bio-optimization, strategic focus, and peak personal command."
             };
             document.getElementById('phaseDescription').innerText = phaseDescs[state.phase] || "";
             document.getElementById('waterCount').innerText = state.water;
