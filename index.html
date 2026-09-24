@@ -164,9 +164,9 @@
 
     <!-- Application Script with Supabase SDK Integration -->
     <script>
-        // Configured with your Supabase Project details from the dashboard
+        // Configured with your exact Supabase project credentials
         const SUPABASE_URL = 'https://qusewbhpndafjtxrcrme.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_cgzBCPVSLk7YJq6Z8Vv6jw_...'; // Paste your full publishable key here from the dashboard popup
+        const SUPABASE_ANON_KEY = 'sb_publishable_cgzBCPVSLk7YJq6Z8Vv6jw_D9jV8b9';
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -402,12 +402,4 @@
             if (state.dw2_done) scoreCount++;
             
             let percentage = Math.round((scoreCount / 5) * 100);
-            document.getElementById('progressBar').style.width = `${percentage}%`;
-            document.getElementById('progressText').innerText = `${scoreCount} of 5 Milestones Completed (${percentage}%)`;
-            document.getElementById('streakCount').innerText = `Streak: ${state.streak} Days`;
-        }
-
-        initApp();
-    </script>
-</body>
-</html>
+            document.getElementById('progressBar').style.width =
