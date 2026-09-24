@@ -6,7 +6,7 @@
     <title>Nuel Core: Human OS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client SDK CDN -->
+    <!-- Supabase JS Client SDK CDN (v2) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
@@ -165,9 +165,7 @@
     <!-- Application Script -->
     <script>
         const SUPABASE_URL = 'https://qusewbhpndafjtxrcrme.supabase.co';
-        // If your Supabase dashboard lists a legacy JWT anon key (starting with eyJ...), paste it here.
-        // Otherwise, you can find your project's classic anon public key under Project Settings -> API -> Project API keys.
-        const SUPABASE_ANON_KEY = 'YOUR_ANON_JWT_KEY_HERE';
+        const SUPABASE_ANON_KEY = 'sb_publishable_cgzBCPVSLk7YJq6KFPL80g_t9nRZpWB';
 
         let supabaseClient = null;
         try {
@@ -407,45 +405,4 @@
             const phaseDescs = {
                 30: "Phase 1: Reclaim Your Energy & Foundation (Reset)",
                 60: "Phase 2: Create Momentum & Structure Your Life (Build)",
-                90: "Phase 3: Master Your Mind, Body & Leadership (Dominate)"
-            };
-            const descEl = document.getElementById('phaseDescription');
-            if (descEl) descEl.innerText = phaseDescs[state.phase] || "";
-
-            const waterEl = document.getElementById('waterCount');
-            if (waterEl) waterEl.innerText = state.water;
-
-            const exCheck = document.getElementById('exerciseCheck');
-            if (exCheck) {
-                const exIcon = exCheck.querySelector('span');
-                if (state.exercise) {
-                    exCheck.classList.add('border-accentGreen', 'bg-emerald-950');
-                    if (exIcon) exIcon.classList.remove('hidden');
-                } else {
-                    exCheck.classList.remove('border-accentGreen', 'bg-emerald-950');
-                    if (exIcon) exIcon.classList.add('hidden');
-                }
-            }
-
-            let scoreCount = 0;
-            if (state.water >= 64) scoreCount++;
-            if (state.exercise) scoreCount++;
-            if (state.noping_done) scoreCount++;
-            if (state.dw1_done) scoreCount++;
-            if (state.dw2_done) scoreCount++;
-            
-            let percentage = Math.round((scoreCount / 5) * 100);
-            const progressBar = document.getElementById('progressBar');
-            if (progressBar) progressBar.style.width = `${percentage}%`;
-            
-            const progressText = document.getElementById('progressText');
-            if (progressText) progressText.innerText = `${scoreCount} of 5 Milestones Completed (${percentage}%)`;
-            
-            const streakCount = document.getElementById('streakCount');
-            if (streakCount) streakCount.innerText = `Streak: ${state.streak} Days`;
-        }
-
-        window.addEventListener('DOMContentLoaded', initApp);
-    </script>
-</body>
-</html>
+                90: "Phase 3: Master Your Mind,
