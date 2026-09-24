@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuel Human OS</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b',
+                        accentGreen: '#10b981',
+                        accentBlue: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 font-sans">
+
+    <!-- Header Section -->
+    <header class="w-full max-w-md mb-6 text-center">
+        <h1 class="text-2xl font-bold tracking-wider text-slate-100 uppercase">Nuel Human OS</h1>
+        <p class="text-xs text-slate-400 mt-1">Daily Execution Command Center</p>
+        
+        <!-- Overall Progress Bar -->
+        <div class="mt-4 bg-cardBg rounded-full h-3 p-0.5 border border-slate-700">
+            <div id="progressBar" class="bg-accentGreen h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+        </div>
+        <p id="progressText" class="text-xs text-slate-400 mt-1">0 of 4 Pillars Completed (0%)</p>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-md space-y-4">
+
+        <!-- 1. Water Intake Module -->
+        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
+            <div>
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Water Intake</h2>
+                <p class="text-xs text-slate-400"><span id="waterCount">0</span> / 64 oz</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="updateWater(-8)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
+                <button onclick="updateWater(8)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+</button>
+            </div>
+        </div>
+
+        <!-- 2. Exercise Module -->
+        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between cursor-pointer" onclick="togglePillar('exercise')">
+            <div>
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Daily Exercise</h2>
+                <p class="text-xs text-slate-400">Bodyweight, Run, or Ride</p>
+            </div>
+            <div id="exerciseCheck" class="w-7 h-7 rounded-lg border-2 border-slate-600 flex items-center justify-center transition">
+                <span class="text-accentGreen text-lg hidden">✓</span>
+            </div>
+        </div>
+
+        <!-- 3. No-Ping Hour Module -->
+        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
+            <div>
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">No-Ping Hour</h2>
+                <p id="nopingStatus" class="text-xs text-slate-400">Status: Inactive</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="nopingTimer" class="font-mono text-sm text-slate-200">60:00</span>
+                <button id="nopingBtn" onclick="toggleTimer('noping', 60)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+            </div>
+        </div>
+
+        <!-- 4. Deep Work Session 1 (90m) -->
+        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
+            <div>
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #1</h2>
+                <p id="dw1Status" class="text-xs text-slate-400">Status: Inactive</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
+                <button id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+            </div>
+        </div>
+
+        <!-- 5. Deep Work Session 2 (90m) -->
+        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
+            <div>
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #2</h2>
+                <p id="dw2Status" class="text-xs text-slate-400">Status: Inactive</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="dw2Timer" class="font-mono text-sm text-slate-200">90:00</span>
+                <button id="dw2Btn" onclick="toggleTimer('dw2', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Action -->
+    <footer class="w-full max-w-md mt-6 text-center">
+        <button onclick="resetDay()" class="text-xs text-slate-500 hover:text-slate-300 underline transition">Reset Daily Data</button>
+    </footer>
+
+    <!-- App Logic Script -->
+    <script>
+        // State Object
+        let state = {
+            water: 0,
+            exercise: false,
+            nopingDone: false,
+            dw1Done: false,
+            dw2Done: false
+        };
+
+        // Active intervals tracker
+        let activeTimers = {
+            noping: { time: 60 * 60, running: false, interval: null, target: 'noping' },
+            dw1: { time: 90 * 60, running: false, interval: null, target: 'dw1' },
+            dw2: { time: 90 * 60, running: false, interval: null, target: 'dw2' }
+        };
+
+        // Load data from localStorage on start
+        function loadData() {
+            const saved = localStorage.getItem('nuel_human_os_state');
+            if (saved) {
+                state = JSON.parse(saved);
+            }
+            render();
+        }
+
+        function saveData() {
+            localStorage.setItem('nuel_human_os_state', JSON.stringify(state));
+            render();
+        }
+
+        function updateWater(amount) {
+            state.water = Math.max(0, state.water + amount);
+            saveData();
+        }
+
+        function togglePillar(pillar) {
+            if (pillar === 'exercise') {
+                state.exercise = !state.exercise;
+            }
+            saveData();
+        }
+
+        function toggleTimer(id, defaultMinutes) {
+            let t = activeTimers[id];
+            
+            if (t.running) {
+                // Pause/Stop
+                clearInterval(t.interval);
+                t.running = false;
+                document.getElementById(`${id}Btn`).innerText = "Resume";
+                document.getElementById(`${id}Btn`).className = "bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition";
+                document.getElementById(`${id}Status`).innerText = "Status: Paused";
+            } else {
+                // Start
+                t.running = true;
+                document.getElementById(`${id}Btn`).innerText = "Pause";
+                document.getElementById(`${id}Btn`).className = "bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition";
+                document.getElementById(`${id}Status`).innerText = "Status: Running...";
+
+                t.interval = setInterval(() => {
+                    if (t.time > 0) {
+                        t.time--;
+                        updateTimerDisplay(id);
+                    } else {
+                        clearInterval(t.interval);
+                        t.running = false;
+                        t.time = defaultMinutes * 60;
+                        document.getElementById(`${id}Btn`).innerText = "Done";
+                        document.getElementById(`${id}Btn`).className = "bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-not-allowed";
+                        document.getElementById(`${id}Status`).innerText = "Status: Completed!";
+                        
+                        // Mark corresponding objective as complete
+                        if (id === 'noping') state.nopingDone = true;
+                        if (id === 'dw1') state.dw1Done = true;
+                        if (id === 'dw2') state.dw2Done = true;
+                        saveData();
+                    }
+                }, 1000);
+            }
+        }
+
+        function updateTimerDisplay(id) {
+            let t = activeTimers[id].time;
+            let mins = Math.floor(t / 60);
+            let secs = t % 60;
+            document.getElementById(`${id}Timer`).innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function resetDay() {
+            if(confirm("Are you sure you want to reset today's progress?")) {
+                localStorage.removeItem('nuel_human_os_state');
+                state = { water: 0, exercise: false, nopingDone: false, dw1Done: false, dw2Done: false };
+                location.reload();
+            }
+        }
+
+        function render() {
+            // Water
+            document.getElementById('waterCount').innerText = state.water;
+
+            // Exercise UI Check
+            const exCheck = document.getElementById('exerciseCheck');
+            const exIcon = exCheck.querySelector('span');
+            if (state.exercise) {
+                exCheck.classList.add('border-accentGreen', 'bg-emerald-950');
+                exIcon.classList.remove('hidden');
+            } else {
+                exCheck.classList.remove('border-accentGreen', 'bg-emerald-950');
+                exIcon.classList.add('hidden');
+            }
+
+            // Calculate overall completion score (Water counts if >= 64oz, plus Exercise, No-Ping, DW1, DW2 -> 4 primary goals)
+            let completedPillars = 0;
+            if (state.water >= 64) completedPillars++;
+            if (state.exercise) completedPillars++;
+            if (state.nopingDone) completedPillars++;
+            if (state.dw1Done && state.dw2Done) completedPillars += 2; // Split deep work into 2 parts or evaluate proportionally
+            
+            // Let's count total completed items out of 4 main metrics categories
+            let scoreCount = 0;
+            if (state.water >= 64) scoreCount++;
+            if (state.exercise) scoreCount++;
+            if (state.nopingDone) scoreCount++;
+            if (state.dw1Done) scoreCount++;
+            if (state.dw2Done) scoreCount++;
+            
+            // Percentage based on 5 total tracking criteria (Water goal + Exercise + No-Ping + DW1 + DW2)
+            let percentage = Math.round((scoreCount / 5) * 100);
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+            document.getElementById('progressText').innerText = `${scoreCount} of 5 Milestones Completed (${percentage}%)`;
+        }
+
+        // Initialize on load
+        loadData();
+    </script>
+</body>
+</html>
