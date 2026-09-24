@@ -27,7 +27,7 @@
 <body class="bg-darkBg text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 font-sans">
 
     <!-- AUTHENTICATION VIEW -->
-    <div id="authScreen" class="w-full max-w-md bg-cardBg border border-slate-700 rounded-2xl p-6 shadow-xl mt-12 hidden">
+    <div id="authScreen" class="w-full max-w-md bg-cardBg border border-slate-700 rounded-2xl p-6 shadow-xl mt-12">
         <div class="text-center mb-6">
             <h1 class="text-xl font-bold tracking-wider text-slate-100 uppercase">Nuel Core: Human OS</h1>
             <p class="text-xs text-slate-400 mt-1">Rebuild Your Mind. Optimize Your Body. Upgrade Your Life.</p>
@@ -35,8 +35,8 @@
         
         <!-- Tab Switcher -->
         <div class="flex bg-slate-900 p-1 rounded-lg mb-4 text-xs font-semibold">
-            <button onclick="switchAuthTab('login')" id="loginTabBtn" class="flex-1 py-2 rounded-md bg-accentBlue text-white transition">Sign In</button>
-            <button onclick="switchAuthTab('signup')" id="signupTabBtn" class="flex-1 py-2 rounded-md text-slate-400 transition">Create Account</button>
+            <button type="button" onclick="switchAuthTab('login')" id="loginTabBtn" class="flex-1 py-2 rounded-md bg-accentBlue text-white transition">Sign In</button>
+            <button type="button" onclick="switchAuthTab('signup')" id="signupTabBtn" class="flex-1 py-2 rounded-md text-slate-400 transition">Create Account</button>
         </div>
 
         <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
@@ -62,20 +62,20 @@
                 <h1 class="text-sm font-bold tracking-wide text-slate-100 uppercase">Human OS Dashboard</h1>
                 <p id="loggedUserDisplay" class="text-xs text-slate-400">Loading profile...</p>
             </div>
-            <button onclick="logout()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg transition">Sign Out</button>
+            <button type="button" onclick="logout()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg transition">Sign Out</button>
         </header>
 
         <!-- Phase Selector Banner (30, 60, 90 Days) -->
         <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg">
             <h2 class="text-xs font-semibold uppercase tracking-wider text-accentGold mb-3">Select Transformation Phase</h2>
             <div class="grid grid-cols-3 gap-2">
-                <button onclick="setPhase(30)" id="phase30Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
+                <button type="button" onclick="setPhase(30)" id="phase30Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
                     Phase 1<br><span class="text-[10px] font-normal text-slate-400">30 Days (Reset)</span>
                 </button>
-                <button onclick="setPhase(60)" id="phase60Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
+                <button type="button" onclick="setPhase(60)" id="phase60Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
                     Phase 2<br><span class="text-[10px] font-normal text-slate-400">60 Days (Build)</span>
                 </button>
-                <button onclick="setPhase(90)" id="phase90Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
+                <button type="button" onclick="setPhase(90)" id="phase90Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
                     Phase 3<br><span class="text-[10px] font-normal text-slate-400">90 Days (Dominate)</span>
                 </button>
             </div>
@@ -103,8 +103,8 @@
                     <p class="text-xs text-slate-400">Target: <span id="waterCount">0</span> / 64 oz</p>
                 </div>
                 <div class="flex items-center space-x-2">
-                    <button onclick="updateWater(-8)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
-                    <button onclick="updateWater(8)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+</button>
+                    <button type="button" onclick="updateWater(-8)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
+                    <button type="button" onclick="updateWater(8)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+</button>
                 </div>
             </div>
 
@@ -127,7 +127,7 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <span id="nopingTimer" class="font-mono text-sm text-slate-200">60:00</span>
-                    <button id="nopingBtn" onclick="toggleTimer('noping', 60)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                    <button type="button" id="nopingBtn" onclick="toggleTimer('noping', 60)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
                 </div>
             </div>
 
@@ -139,7 +139,7 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                    <button id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                    <button type="button" id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
                 </div>
             </div>
 
@@ -151,24 +151,28 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <span id="dw2Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                    <button id="dw2Btn" onclick="toggleTimer('dw2', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                    <button type="button" id="dw2Btn" onclick="toggleTimer('dw2', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
                 </div>
             </div>
         </div>
 
         <!-- Footer Actions -->
         <footer class="text-center pt-2 pb-6">
-            <button onclick="resetDay()" class="text-xs text-slate-500 hover:text-slate-300 underline transition">Reset Today's Progress</button>
+            <button type="button" onclick="resetDay()" class="text-xs text-slate-500 hover:text-slate-300 underline transition">Reset Today's Progress</button>
         </footer>
     </div>
 
-    <!-- Application Script with Supabase SDK Integration -->
+    <!-- Application Script -->
     <script>
-        // Configured with your exact Supabase project credentials
         const SUPABASE_URL = 'https://qusewbhpndafjtxrcrme.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_cgzBCPVSLk7YJq6Z8Vv6jw_D9jV8b9';
 
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabaseClient = null;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch(e) {
+            console.error("Supabase init error:", e);
+        }
 
         let isSignUpMode = false;
         let currentAuthUser = null;
@@ -207,11 +211,20 @@
         }
 
         async function initApp() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                currentAuthUser = session.user;
-                showDashboard();
-            } else {
+            if (!supabaseClient) {
+                showAuthScreen();
+                return;
+            }
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    currentAuthUser = session.user;
+                    showDashboard();
+                } else {
+                    showAuthScreen();
+                }
+            } catch (err) {
+                console.error("Auth session check failed:", err);
                 showAuthScreen();
             }
         }
@@ -222,6 +235,11 @@
             const password = document.getElementById('userPasswordInput').value;
             const errorEl = document.getElementById('authErrorMsg');
             errorEl.innerText = "";
+
+            if (!supabaseClient) {
+                errorEl.innerText = "Database client not initialized.";
+                return;
+            }
 
             if (isSignUpMode) {
                 const { data, error } = await supabaseClient.auth.signUp({ email, password });
@@ -243,7 +261,7 @@
         }
 
         async function logout() {
-            await supabaseClient.auth.signOut();
+            if (supabaseClient) await supabaseClient.auth.signOut();
             currentAuthUser = null;
             showAuthScreen();
         }
@@ -256,42 +274,49 @@
         async function showDashboard() {
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('dashboardScreen').classList.remove('hidden');
-            document.getElementById('loggedUserDisplay').innerText = `Account: ${currentAuthUser.email}`;
+            document.getElementById('loggedUserDisplay').innerText = `Account: ${currentAuthUser ? currentAuthUser.email : 'User'}`;
             await loadCloudData();
         }
 
         async function loadCloudData() {
-            const { data, error } = await supabaseClient
-                .from('user_progress')
-                .select('*')
-                .eq('id', currentAuthUser.id)
-                .single();
+            if (!currentAuthUser || !supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('user_progress')
+                    .select('*')
+                    .eq('id', currentAuthUser.id)
+                    .single();
 
-            if (data) {
-                state = data;
-            } else {
-                await supabaseClient.from('user_progress').insert([{ id: currentAuthUser.id, ...state }]);
+                if (data) {
+                    state = data;
+                } else {
+                    await supabaseClient.from('user_progress').insert([{ id: currentAuthUser.id, ...state }]);
+                }
+            } catch (e) {
+                console.error("Error loading cloud data:", e);
             }
             render();
         }
 
         async function saveCloudData() {
-            if (!currentAuthUser) return;
-            const { error } = await supabaseClient
-                .from('user_progress')
-                .update({
-                    phase: state.phase,
-                    water: state.water,
-                    exercise: state.exercise,
-                    noping_done: state.noping_done,
-                    dw1_done: state.dw1_done,
-                    dw2_done: state.dw2_done,
-                    streak: state.streak,
-                    updated_at: new Date()
-                })
-                .eq('id', currentAuthUser.id);
-
-            if (error) console.error('Error saving data:', error.message);
+            if (!currentAuthUser || !supabaseClient) return;
+            try {
+                await supabaseClient
+                    .from('user_progress')
+                    .update({
+                        phase: state.phase,
+                        water: state.water,
+                        exercise: state.exercise,
+                        noping_done: state.noping_done,
+                        dw1_done: state.dw1_done,
+                        dw2_done: state.dw2_done,
+                        streak: state.streak,
+                        updated_at: new Date()
+                    })
+                    .eq('id', currentAuthUser.id);
+            } catch (e) {
+                console.error('Error saving data:', e);
+            }
             render();
         }
 
@@ -368,10 +393,12 @@
         function render() {
             ['30', '60', '90'].forEach(d => {
                 const btn = document.getElementById(`phase${d}Btn`);
-                if (state.phase == d) {
-                    btn.className = "p-2.5 rounded-lg text-center border border-accentGold bg-amber-950/40 text-accentGold text-xs font-bold transition";
-                } else {
-                    btn.className = "p-2.5 rounded-lg text-center border border-slate-700 bg-slate-900 text-slate-400 text-xs font-bold transition";
+                if (btn) {
+                    if (state.phase == d) {
+                        btn.className = "p-2.5 rounded-lg text-center border border-accentGold bg-amber-950/40 text-accentGold text-xs font-bold transition";
+                    } else {
+                        btn.className = "p-2.5 rounded-lg text-center border border-slate-700 bg-slate-900 text-slate-400 text-xs font-bold transition";
+                    }
                 }
             });
 
@@ -380,18 +407,22 @@
                 60: "Phase 2: Create Momentum & Structure Your Life (Build)",
                 90: "Phase 3: Master Your Mind, Body & Leadership (Dominate)"
             };
-            document.getElementById('phaseDescription').innerText = phaseDescs[state.phase];
+            const descEl = document.getElementById('phaseDescription');
+            if (descEl) descEl.innerText = phaseDescs[state.phase] || "";
 
-            document.getElementById('waterCount').innerText = state.water;
+            const waterEl = document.getElementById('waterCount');
+            if (waterEl) waterEl.innerText = state.water;
 
             const exCheck = document.getElementById('exerciseCheck');
-            const exIcon = exCheck.querySelector('span');
-            if (state.exercise) {
-                exCheck.classList.add('border-accentGreen', 'bg-emerald-950');
-                exIcon.classList.remove('hidden');
-            } else {
-                exCheck.classList.remove('border-accentGreen', 'bg-emerald-950');
-                exIcon.classList.add('hidden');
+            if (exCheck) {
+                const exIcon = exCheck.querySelector('span');
+                if (state.exercise) {
+                    exCheck.classList.add('border-accentGreen', 'bg-emerald-950');
+                    if (exIcon) exIcon.classList.remove('hidden');
+                } else {
+                    exCheck.classList.remove('border-accentGreen', 'bg-emerald-950');
+                    if (exIcon) exIcon.classList.add('hidden');
+                }
             }
 
             let scoreCount = 0;
@@ -402,4 +433,18 @@
             if (state.dw2_done) scoreCount++;
             
             let percentage = Math.round((scoreCount / 5) * 100);
-            document.getElementById('progressBar').style.width =
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) progressBar.style.width = `${percentage}%`;
+            
+            const progressText = document.getElementById('progressText');
+            if (progressText) progressText.innerText = `${scoreCount} of 5 Milestones Completed (${percentage}%)`;
+            
+            const streakCount = document.getElementById('streakCount');
+            if (streakCount) streakCount.innerText = `Streak: ${state.streak} Days`;
+        }
+
+        // Initialize app on load
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
