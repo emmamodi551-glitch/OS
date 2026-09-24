@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuel Human OS</title>
+    <title>Nuel Human OS | Daily Execution System</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -24,25 +24,45 @@
 <body class="bg-darkBg text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 font-sans">
 
     <!-- Header Section -->
-    <header class="w-full max-w-md mb-6 text-center">
-        <h1 class="text-2xl font-bold tracking-wider text-slate-100 uppercase">Nuel Human OS</h1>
-        <p class="text-xs text-slate-400 mt-1">Daily Execution Command Center</p>
+    <header class="w-full max-w-lg mb-6 text-center">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-wider text-slate-100 uppercase">Nuel Human OS</h1>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">High-Performance Daily Execution & Focus Command Center</p>
         
         <!-- Overall Progress Bar -->
         <div class="mt-4 bg-cardBg rounded-full h-3 p-0.5 border border-slate-700">
             <div id="progressBar" class="bg-accentGreen h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
         </div>
-        <p id="progressText" class="text-xs text-slate-400 mt-1">0 of 4 Pillars Completed (0%)</p>
+        <p id="progressText" class="text-xs text-slate-400 mt-1">0 of 5 Milestones Completed (0%)</p>
     </header>
 
-    <!-- Main Container -->
-    <main class="w-full max-w-md space-y-4">
+    <!-- Main Command Center Container -->
+    <main class="w-full max-w-lg space-y-4">
+
+        <!-- Info / System Guide Dropdown Toggle -->
+        <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg">
+            <div class="flex items-center justify-between cursor-pointer" onclick="toggleGuide()">
+                <div>
+                    <h2 class="text-sm font-semibold uppercase tracking-wide text-accentBlue">System Guide</h2>
+                    <p class="text-xs text-slate-400">What is the Nuel Human OS?</p>
+                </div>
+                <span id="guideArrow" class="text-slate-400 transform transition-transform text-sm font-bold">▼</span>
+            </div>
+            <div id="guideContent" class="hidden mt-3 pt-3 border-t border-slate-700 text-xs text-slate-300 space-y-2 leading-relaxed">
+                <p>The <strong>Nuel Human OS</strong> is a disciplined daily framework designed to optimize cognitive output, physical vitality, and digital boundaries. By executing these four key pillars daily, you eliminate friction and ensure compound progress:</p>
+                <ul class="list-disc pl-4 space-y-1 text-slate-400">
+                    <li><strong>Water Intake (64+ oz):</strong> Maintains optimal hydration for peak cognitive focus and physical energy.</li>
+                    <li><strong>Daily Exercise:</strong> Keeps the physical engine running through bodyweight work, running, or cycling.</li>
+                    <li><strong>No-Ping Hour:</strong> Protects your attention span by cutting off notifications, alerts, and digital noise for 60 minutes.</li>
+                    <li><strong>90-Minute Deep Work (2x):</strong> Harnesses ultra-focused blocks of uninterrupted time for high-impact creation.</li>
+                </ul>
+            </div>
+        </div>
 
         <!-- 1. Water Intake Module -->
         <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
             <div>
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Water Intake</h2>
-                <p class="text-xs text-slate-400"><span id="waterCount">0</span> / 64 oz</p>
+                <p class="text-xs text-slate-400">Target: <span id="waterCount">0</span> / 64 oz</p>
             </div>
             <div class="flex items-center space-x-2">
                 <button onclick="updateWater(-8)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
@@ -65,7 +85,7 @@
         <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
             <div>
                 <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">No-Ping Hour</h2>
-                <p id="nopingStatus" class="text-xs text-slate-400">Status: Inactive</p>
+                <p id="nopingStatus" class="text-xs text-slate-400">Zero notifications or distractions</p>
             </div>
             <div class="flex items-center space-x-2">
                 <span id="nopingTimer" class="font-mono text-sm text-slate-200">60:00</span>
@@ -76,8 +96,8 @@
         <!-- 4. Deep Work Session 1 (90m) -->
         <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
             <div>
-                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #1</h2>
-                <p id="dw1Status" class="text-xs text-slate-400">Status: Inactive</p>
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #1 (90m)</h2>
+                <p id="dw1Status" class="text-xs text-slate-400">Uninterrupted creation block</p>
             </div>
             <div class="flex items-center space-x-2">
                 <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
@@ -88,8 +108,8 @@
         <!-- 5. Deep Work Session 2 (90m) -->
         <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg flex items-center justify-between">
             <div>
-                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #2</h2>
-                <p id="dw2Status" class="text-xs text-slate-400">Status: Inactive</p>
+                <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #2 (90m)</h2>
+                <p id="dw2Status" class="text-xs text-slate-400">Secondary execution block</p>
             </div>
             <div class="flex items-center space-x-2">
                 <span id="dw2Timer" class="font-mono text-sm text-slate-200">90:00</span>
@@ -100,13 +120,12 @@
     </main>
 
     <!-- Footer Action -->
-    <footer class="w-full max-w-md mt-6 text-center">
+    <footer class="w-full max-w-lg mt-6 text-center">
         <button onclick="resetDay()" class="text-xs text-slate-500 hover:text-slate-300 underline transition">Reset Daily Data</button>
     </footer>
 
     <!-- App Logic Script -->
     <script>
-        // State Object
         let state = {
             water: 0,
             exercise: false,
@@ -115,14 +134,19 @@
             dw2Done: false
         };
 
-        // Active intervals tracker
         let activeTimers = {
-            noping: { time: 60 * 60, running: false, interval: null, target: 'noping' },
-            dw1: { time: 90 * 60, running: false, interval: null, target: 'dw1' },
-            dw2: { time: 90 * 60, running: false, interval: null, target: 'dw2' }
+            noping: { time: 60 * 60, running: false, interval: null },
+            dw1: { time: 90 * 60, running: false, interval: null },
+            dw2: { time: 90 * 60, running: false, interval: null }
         };
 
-        // Load data from localStorage on start
+        function toggleGuide() {
+            const content = document.getElementById('guideContent');
+            const arrow = document.getElementById('guideArrow');
+            content.classList.toggle('hidden');
+            arrow.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
         function loadData() {
             const saved = localStorage.getItem('nuel_human_os_state');
             if (saved) {
@@ -152,14 +176,12 @@
             let t = activeTimers[id];
             
             if (t.running) {
-                // Pause/Stop
                 clearInterval(t.interval);
                 t.running = false;
                 document.getElementById(`${id}Btn`).innerText = "Resume";
                 document.getElementById(`${id}Btn`).className = "bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition";
                 document.getElementById(`${id}Status`).innerText = "Status: Paused";
             } else {
-                // Start
                 t.running = true;
                 document.getElementById(`${id}Btn`).innerText = "Pause";
                 document.getElementById(`${id}Btn`).className = "bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition";
@@ -177,7 +199,6 @@
                         document.getElementById(`${id}Btn`).className = "bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-not-allowed";
                         document.getElementById(`${id}Status`).innerText = "Status: Completed!";
                         
-                        // Mark corresponding objective as complete
                         if (id === 'noping') state.nopingDone = true;
                         if (id === 'dw1') state.dw1Done = true;
                         if (id === 'dw2') state.dw2Done = true;
@@ -203,10 +224,8 @@
         }
 
         function render() {
-            // Water
             document.getElementById('waterCount').innerText = state.water;
 
-            // Exercise UI Check
             const exCheck = document.getElementById('exerciseCheck');
             const exIcon = exCheck.querySelector('span');
             if (state.exercise) {
@@ -217,14 +236,6 @@
                 exIcon.classList.add('hidden');
             }
 
-            // Calculate overall completion score (Water counts if >= 64oz, plus Exercise, No-Ping, DW1, DW2 -> 4 primary goals)
-            let completedPillars = 0;
-            if (state.water >= 64) completedPillars++;
-            if (state.exercise) completedPillars++;
-            if (state.nopingDone) completedPillars++;
-            if (state.dw1Done && state.dw2Done) completedPillars += 2; // Split deep work into 2 parts or evaluate proportionally
-            
-            // Let's count total completed items out of 4 main metrics categories
             let scoreCount = 0;
             if (state.water >= 64) scoreCount++;
             if (state.exercise) scoreCount++;
@@ -232,13 +243,11 @@
             if (state.dw1Done) scoreCount++;
             if (state.dw2Done) scoreCount++;
             
-            // Percentage based on 5 total tracking criteria (Water goal + Exercise + No-Ping + DW1 + DW2)
             let percentage = Math.round((scoreCount / 5) * 100);
             document.getElementById('progressBar').style.width = `${percentage}%`;
             document.getElementById('progressText').innerText = `${scoreCount} of 5 Milestones Completed (${percentage}%)`;
         }
 
-        // Initialize on load
         loadData();
     </script>
 </body>
