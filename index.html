@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuel Core: Human OS</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Human OS">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Stripe.js SDK -->
     <script src="https://js.stripe.com/v3/"></script>
     <script>
@@ -24,24 +36,7 @@
             }
         }
     </script>
-    <!-- PWA & Mobile Meta Tags -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Human OS">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
 </head>
-    <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('PWA Service Worker registered:', reg.scope))
-        .catch(err => console.error('Service Worker registration failed:', err));
-    });
-  }
-</script>
 <body class="bg-darkBg text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 font-sans">
 
     <!-- AUTHENTICATION VIEW -->
@@ -86,7 +81,7 @@
         <form id="resetForm" onsubmit="handleResetPasswordSubmit(event)" class="space-y-4 hidden">
             <div class="text-left mb-2">
                 <h3 class="text-sm font-bold text-slate-200 uppercase">Reset Password</h3>
-                <p class="text-xs text-slate-400">Enter your email and set a new password.</p>
+                <p class="text-xs text-slate-400">Enter your email and provide a new password.</p>
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Account Email</label>
@@ -197,7 +192,7 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                    <button type="button" id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                    <button type="button" id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Start</button>
                 </div>
             </div>
 
@@ -269,6 +264,13 @@
 
     <!-- Application Script -->
     <script>
+        // Supabase Configuration
+        const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+        const hasValidSupabase = SUPABASE_URL.includes("https://") && !SUPABASE_URL.includes("YOUR_PROJECT_ID");
+        const supabaseClient = hasValidSupabase ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+        // Stripe Configuration
         const STRIPE_PK = "pk_live_51UPL3CAknbrSNyjgk5pJNKvp6QieYUg181NysxdICDn7HI7FJ0FotgywdkuE8bnl7YPVux3Q8jBCFnpejBZbFBD200abIReUdi";
         let stripe = null;
         try {
@@ -373,22 +375,57 @@
             el.innerText = msg;
         }
 
-        function handleAuthSubmit(event) {
+        async function handleAuthSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('userEmailInput').value.trim().toLowerCase();
             const password = document.getElementById('userPasswordInput').value;
-            const accounts = getAccounts();
 
             if (!email || !password) {
-                displayAuthMessage("Please fill out both email and password.", "text-red-400");
+                displayAuthMessage("Please enter email and password.", "text-red-400");
                 return;
             }
 
+            if (supabaseClient) {
+                if (currentAuthMode === 'signup') {
+                    const confirmPassword = document.getElementById('userConfirmPasswordInput').value;
+                    if (password !== confirmPassword) {
+                        displayAuthMessage("Passwords do not match.", "text-red-400");
+                        return;
+                    }
+                    displayAuthMessage("Creating account on cloud...", "text-slate-400");
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                    if (error) {
+                        displayAuthMessage(error.message, "text-red-400");
+                    } else {
+                        currentUser = email;
+                        localStorage.setItem('nuel_current_user', email);
+                        state = { phase: 30, isSubscribed: false, water: 0, exerciseMins: 0, noping_done: false, dw1_done: false, dw2_done: false, streak: 1 };
+                        saveUserData();
+                        displayAuthMessage("Account created successfully!", "text-accentGreen");
+                        setTimeout(() => showDashboard(), 500);
+                    }
+                } else {
+                    displayAuthMessage("Authenticating...", "text-slate-400");
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) {
+                        displayAuthMessage(error.message, "text-red-400");
+                    } else {
+                        currentUser = email;
+                        localStorage.setItem('nuel_current_user', email);
+                        loadUserData(email);
+                        showDashboard();
+                    }
+                }
+                return;
+            }
+
+            // Universal Storage Mode (Ensures zero lockouts when running offline or without database keys)
+            const accounts = getAccounts();
+
             if (currentAuthMode === 'signup') {
                 const confirmPassword = document.getElementById('userConfirmPasswordInput').value;
-
                 if (password.length < 6) {
-                    displayAuthMessage("Password must be at least 6 characters long.", "text-red-400");
+                    displayAuthMessage("Password must be at least 6 characters.", "text-red-400");
                     return;
                 }
                 if (password !== confirmPassword) {
@@ -400,25 +437,21 @@
                     return;
                 }
 
-                // Register account
                 accounts[email] = { password: password };
                 saveAccounts(accounts);
-                
                 currentUser = email;
                 localStorage.setItem('nuel_current_user', email);
                 state = { phase: 30, isSubscribed: false, water: 0, exerciseMins: 0, noping_done: false, dw1_done: false, dw2_done: false, streak: 1 };
                 saveUserData();
-
                 displayAuthMessage("Account created successfully! Loading dashboard...", "text-accentGreen");
                 setTimeout(() => showDashboard(), 400);
             } else {
-                // Sign In mode
                 if (!accounts[email]) {
-                    displayAuthMessage("No account found with this email. Click 'Create Account' above.", "text-red-400");
-                    return;
-                }
-                if (accounts[email].password !== password) {
-                    displayAuthMessage("Incorrect password. Click 'Forgot password?' to change it.", "text-red-400");
+                    // Auto-provisions credential slot if first time logging in with this email
+                    accounts[email] = { password: password };
+                    saveAccounts(accounts);
+                } else if (accounts[email].password !== password) {
+                    displayAuthMessage("Incorrect password. Click 'Forgot password?' below.", "text-red-400");
                     return;
                 }
 
@@ -429,18 +462,13 @@
             }
         }
 
-        function handleResetPasswordSubmit(event) {
+        async function handleResetPasswordSubmit(event) {
             event.preventDefault();
             const email = document.getElementById('resetEmailInput').value.trim().toLowerCase();
             const newPassword = document.getElementById('resetNewPasswordInput').value;
-            const accounts = getAccounts();
 
             if (!email) {
                 displayResetMessage("Please enter your account email.", "text-red-400");
-                return;
-            }
-            if (!accounts[email]) {
-                displayResetMessage("No registered account found with that email address.", "text-red-400");
                 return;
             }
             if (newPassword.length < 6) {
@@ -448,16 +476,29 @@
                 return;
             }
 
-            accounts[email].password = newPassword;
+            if (supabaseClient) {
+                displayResetMessage("Sending password reset email...", "text-slate-400");
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+                if (error) {
+                    displayResetMessage(error.message, "text-red-400");
+                } else {
+                    displayResetMessage("Reset link dispatched to your inbox!", "text-accentGreen");
+                }
+                return;
+            }
+
+            // Universal Reset: updates or registers the password for this email immediately
+            const accounts = getAccounts();
+            accounts[email] = { password: newPassword };
             saveAccounts(accounts);
-            displayResetMessage("Password successfully updated! Returning to login...", "text-accentGreen");
+            displayResetMessage("Password updated successfully! Redirecting to sign in...", "text-accentGreen");
 
             setTimeout(() => {
                 cancelResetView();
                 switchAuthMode('login');
                 document.getElementById('userEmailInput').value = email;
                 document.getElementById('userPasswordInput').value = '';
-                displayAuthMessage("Password updated. Please sign in with your new password.", "text-accentGreen");
+                displayAuthMessage("Password reset. Sign in with your new password.", "text-accentGreen");
             }, 800);
         }
 
@@ -476,6 +517,18 @@
 
         function initApp() {
             checkStripeReturn();
+
+            if (supabaseClient) {
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (session && session.user) {
+                        currentUser = session.user.email;
+                        localStorage.setItem('nuel_current_user', currentUser);
+                        loadUserData(currentUser);
+                        showDashboard();
+                    }
+                });
+            }
+
             if (currentUser) {
                 loadUserData(currentUser);
                 showDashboard();
@@ -495,14 +548,17 @@
             }
         }
 
-        function logout() {
+        async function logout() {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
             localStorage.removeItem('nuel_current_user');
             currentUser = null;
             showAuthScreen();
         }
 
         function forceResetStorage() {
-            if (confirm("Clear local storage and reset all saved accounts?")) {
+            if (confirm("Clear local storage and reset all accounts?")) {
                 localStorage.clear();
                 location.reload();
             }
@@ -705,6 +761,17 @@
         }
 
         window.onload = initApp;
+    </script>
+
+    <!-- Service Worker Registration for PWA Installation -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered:', reg.scope))
+                    .catch(err => console.log('Service worker not registered:', err));
+            });
+        }
     </script>
 </body>
 </html>
