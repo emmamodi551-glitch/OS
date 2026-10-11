@@ -2,22 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuel Core: Human OS</title>
-
-    <!-- PWA & Mobile Meta Tags -->
-    <meta name="theme-color" content="#0f172a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Human OS">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><circle cx='50' cy='50' r='35' stroke='%233b82f6' stroke-width='8' fill='none'/><path d='M35 50 L46 62 L65 38' stroke='%2310b981' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><circle cx='50' cy='50' r='35' stroke='%233b82f6' stroke-width='8' fill='none'/><path d='M35 50 L46 62 L65 38' stroke='%2310b981' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
-
-    <!-- Embedded Web App Manifest Data URL -->
-    <link rel="manifest" id="manifestPlaceholder">
-
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Stripe.js SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -34,61 +24,68 @@
             }
         }
     </script>
-
-    <!-- Stripe.js SDK -->
-    <script src="https://js.stripe.com/v3/"></script>
 </head>
-<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 font-sans select-none pb-12">
-
-    <!-- PWA Install Banner (Displays when install prompt is triggered) -->
-    <aside id="installAppBanner" aria-label="Install App" class="w-full max-w-lg mb-4 hidden bg-gradient-to-r from-blue-900/60 to-slate-800 border border-accentBlue/60 rounded-xl p-3 flex items-center justify-between shadow-xl">
-        <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-lg bg-accentBlue/20 border border-accentBlue flex items-center justify-center text-accentBlue font-black text-sm">
-                OS
-            </div>
-            <div>
-                <p class="text-xs font-bold text-white tracking-wide">Install Nuel Core</p>
-                <p class="text-[10px] text-slate-300">Run as a standalone app on your device</p>
-            </div>
-        </div>
-        <div class="flex items-center space-x-2">
-            <button type="button" onclick="installPWA()" class="bg-accentBlue hover:bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">Install</button>
-            <button type="button" onclick="dismissInstallBanner()" class="text-slate-400 hover:text-white text-xs px-2 py-1">✕</button>
-        </div>
-    </aside>
+<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 font-sans">
 
     <!-- AUTHENTICATION VIEW -->
     <div id="authScreen" class="w-full max-w-md bg-cardBg border border-slate-700 rounded-2xl p-6 shadow-xl mt-8">
         <div class="text-center mb-6">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 mb-3 text-accentBlue font-mono font-bold text-lg">
-                NU
-            </div>
             <h1 class="text-xl font-bold tracking-wider text-slate-100 uppercase">Nuel Core: Human OS</h1>
             <p class="text-xs text-slate-400 mt-1">Rebuild Your Mind. Optimize Your Body. Upgrade Your Life.</p>
         </div>
         
         <!-- Tab Switcher -->
-        <div class="flex bg-slate-900 p-1 rounded-lg mb-4 text-xs font-semibold">
-            <button type="button" onclick="switchAuthTab('login')" id="loginTabBtn" class="flex-1 py-2 rounded-md bg-accentBlue text-white transition">Sign In</button>
-            <button type="button" onclick="switchAuthTab('signup')" id="signupTabBtn" class="flex-1 py-2 rounded-md text-slate-400 transition">Create Account</button>
+        <div id="authTabs" class="flex bg-slate-900 p-1 rounded-lg mb-4 text-xs font-semibold">
+            <button type="button" onclick="switchAuthMode('login')" id="loginTabBtn" class="flex-1 py-2 rounded-md bg-accentBlue text-white transition">Sign In</button>
+            <button type="button" onclick="switchAuthMode('signup')" id="signupTabBtn" class="flex-1 py-2 rounded-md text-slate-400 transition">Create Account</button>
         </div>
 
+        <!-- Standard Login / Signup Form -->
         <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Email Address</label>
-                <input type="email" id="userEmailInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="emmanuel@nuelpropertyservices.com">
+                <input type="email" id="userEmailInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="name@example.com">
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Password</label>
                 <input type="password" id="userPasswordInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="••••••••">
             </div>
+
+            <!-- Confirm Password Field (Signup only) -->
+            <div id="confirmPasswordGroup" class="hidden">
+                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Confirm Password</label>
+                <input type="password" id="userConfirmPasswordInput" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="••••••••">
+            </div>
+
+            <div class="flex justify-between items-center text-xs">
+                <button type="button" onclick="showForgotPasswordView()" class="text-slate-400 hover:text-accentBlue underline">Forgot password?</button>
+            </div>
+
             <button type="submit" id="authSubmitBtn" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-bold py-2.5 rounded-lg text-sm transition">Sign In</button>
-            <p id="authErrorMsg" class="text-xs text-red-400 text-center mt-2"></p>
+            <p id="authMessage" class="text-xs text-center mt-2"></p>
         </form>
 
-        <div class="mt-6 text-center border-t border-slate-700 pt-4 flex items-center justify-between">
-            <button type="button" onclick="forceResetStorage()" class="text-[11px] text-slate-500 hover:text-slate-300 underline">Reset Storage</button>
-            <span class="text-[10px] text-slate-600 font-mono">v1.2.0 PWA</span>
+        <!-- Forgot / Reset Password Form (Hidden by default) -->
+        <form id="resetForm" onsubmit="handleResetPasswordSubmit(event)" class="space-y-4 hidden">
+            <div class="text-left mb-2">
+                <h3 class="text-sm font-bold text-slate-200 uppercase">Reset Password</h3>
+                <p class="text-xs text-slate-400">Enter your email and provide a new password.</p>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Account Email</label>
+                <input type="email" id="resetEmailInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="name@example.com">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">New Password</label>
+                <input type="password" id="resetNewPasswordInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="••••••••">
+            </div>
+            <button type="submit" class="w-full bg-accentGold hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-lg text-sm transition">Update Password</button>
+            <button type="button" onclick="cancelResetView()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2 rounded-lg text-xs transition">Back to Sign In</button>
+            <p id="resetMessage" class="text-xs text-center mt-2"></p>
+        </form>
+
+        <div class="mt-6 text-center border-t border-slate-700 pt-4">
+            <button type="button" onclick="forceResetStorage()" class="text-[11px] text-slate-500 hover:text-slate-300 underline">Clear Browser Cache & Reset</button>
         </div>
     </div>
 
@@ -133,5 +130,190 @@
         <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg text-center">
             <div class="flex justify-between items-center mb-2">
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-300">Daily Execution Score</span>
-                <span id="streakCount" class="text
-                    
+                <span id="streakCount" class="text-xs bg-emerald-950 border border-emerald-800 text-accentGreen px-2 py-0.5 rounded-full font-mono">Streak: 1 Day</span>
+            </div>
+            <div class="bg-slate-900 rounded-full h-3 p-0.5 border border-slate-700">
+                <div id="progressBar" class="bg-accentGreen h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+            <p id="progressText" class="text-xs text-slate-400 mt-2">0 of 5 Milestones Completed (0%)</p>
+        </div>
+
+        <!-- Core Trackers Container -->
+        <div class="space-y-3">
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Water Intake</h3>
+                    <p class="text-xs text-slate-400">Target: <span id="waterCount">0</span> / 64 oz</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="updateWater(-8)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
+                    <button type="button" onclick="updateWater(8)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+</button>
+                </div>
+            </div>
+
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Physical Training</h3>
+                    <p class="text-xs text-slate-400">Target: <span id="exerciseMins">0</span> / 30 mins (Run/Ride/Bodyweight)</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="updateExercise(-10)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
+                    <button type="button" onclick="updateExercise(15)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+15m</button>
+                </div>
+            </div>
+
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">No-Ping Hour</h3>
+                    <p id="nopingStatus" class="text-xs text-slate-400">Zero notifications</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="nopingTimer" class="font-mono text-sm text-slate-200">60:00</span>
+                    <button type="button" id="nopingBtn" onclick="toggleTimer('noping', 60)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
+                </div>
+            </div>
+
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #1 (90m)</h3>
+                    <p id="dw1Status" class="text-xs text-slate-400">Primary focus block</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
+                    <button type="button" id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Start</button>
+                </div>
+            </div>
+
+            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
+                <div>
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #2 (90m)</h3>
+                    <p id="dw2Status" class="text-xs text-slate-400">Secondary focus block</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="dw2Timer" class="font-mono text-sm text-slate-200">90:00</span>
+                    <button type="button" id="dw2Btn" onclick="toggleTimer('dw2', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Start</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center pt-2 pb-6 space-y-2">
+            <button type="button" onclick="resetDay()" class="text-xs text-slate-500 hover:text-slate-300 underline transition block mx-auto">Reset Today's Progress</button>
+        </footer>
+    </div>
+
+    <!-- SUBSCRIPTION PAYWALL MODAL -->
+    <div id="paymentModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-cardBg border border-slate-700 w-full max-w-md rounded-2xl p-6 shadow-2xl relative text-left">
+            <button type="button" onclick="closePaywallModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+
+            <div class="text-center mb-5">
+                <span class="inline-block bg-amber-950/80 border border-accentGold text-accentGold text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2">Premium Protocol</span>
+                <h2 id="modalTargetTitle" class="text-xl font-bold text-slate-100">Unlock Full Human OS</h2>
+                <p class="text-xs text-slate-400 mt-1">Access Phase 2 (Build Momentum) & Phase 3 (Dominate & Lead).</p>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 text-center mb-5">
+                <div class="text-3xl font-extrabold text-white font-mono">$89<span class="text-xs font-normal text-slate-400"> / month</span></div>
+                <p class="text-[11px] text-accentGreen mt-1 font-medium">Billed monthly • Cancel anytime • Immediate access</p>
+            </div>
+
+            <div class="space-y-4">
+                <label class="block text-xs font-semibold uppercase text-slate-300">Select Payment Method</label>
+                
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <label class="flex items-center space-x-2 bg-slate-900 border border-slate-700 p-2.5 rounded-lg cursor-pointer hover:border-accentBlue transition">
+                        <input type="radio" name="paymentOption" value="Credit / Debit Card" checked onchange="handlePaymentMethodChange(this.value)">
+                        <span class="text-slate-200">💳 Card (Stripe)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-slate-900 border border-slate-700 p-2.5 rounded-lg cursor-pointer hover:border-accentBlue transition">
+                        <input type="radio" name="paymentOption" value="Apple Pay" onchange="handlePaymentMethodChange(this.value)">
+                        <span class="text-slate-200">🍏 Apple Pay</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-slate-900 border border-slate-700 p-2.5 rounded-lg cursor-pointer hover:border-accentBlue transition">
+                        <input type="radio" name="paymentOption" value="Google Pay" onchange="handlePaymentMethodChange(this.value)">
+                        <span class="text-slate-200">🌐 Google Pay</span>
+                    </label>
+                    <label class="flex items-center space-x-2 bg-slate-900 border border-slate-700 p-2.5 rounded-lg cursor-pointer hover:border-accentBlue transition">
+                        <input type="radio" name="paymentOption" value="PayPal" onchange="handlePaymentMethodChange(this.value)">
+                        <span class="text-slate-200">🅿️ PayPal</span>
+                    </label>
+                </div>
+
+                <div id="stripeNotice" class="text-center p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs text-slate-300">
+                    Secure checkout powered by Stripe. Unlocks Phase 2 and Phase 3 instantly.
+                </div>
+
+                <button type="button" id="subscribeSubmitBtn" onclick="processPayment()" class="w-full bg-accentGold hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-lg text-sm transition mt-2">
+                    Checkout with Stripe ($89/mo)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // Stripe Configuration
+        const STRIPE_PK = "pk_live_51UPL3CAknbrSNyjgk5pJNKvp6QieYUg181NysxdICDn7HI7FJ0FotgywdkuE8bnl7YPVux3Q8jBCFnpejBZbFBD200abIReUdi";
+        let stripe = null;
+        try {
+            stripe = Stripe(STRIPE_PK);
+        } catch (e) {
+            console.error("Stripe initialization failed:", e);
+        }
+
+        // Paste your Stripe payment link below
+        const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/YOUR_LIVE_PAYMENT_LINK_SLUG";
+
+        let currentAuthMode = 'login'; // 'login' or 'signup'
+        let currentUser = localStorage.getItem('nuel_current_user');
+        let selectedPaymentMethod = "Credit / Debit Card";
+        let pendingRequestedPhase = null;
+
+        let state = {
+            phase: 30,
+            isSubscribed: false,
+            water: 0,
+            exerciseMins: 0,
+            noping_done: false,
+            dw1_done: false,
+            dw2_done: false,
+            streak: 1
+        };
+
+        let activeTimers = {
+            noping: { time: 60 * 60, running: false, interval: null },
+            dw1: { time: 90 * 60, running: false, interval: null },
+            dw2: { time: 90 * 60, running: false, interval: null }
+        };
+
+        // --- AUTHENTICATION & CREDENTIAL MANAGEMENT ---
+        function getAccounts() {
+            try {
+                return JSON.parse(localStorage.getItem('nuel_accounts')) || {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveAccounts(accounts) {
+            localStorage.setItem('nuel_accounts', JSON.stringify(accounts));
+        }
+
+        function switchAuthMode(mode) {
+            currentAuthMode = mode;
+            const isSignUp = (mode === 'signup');
+            document.getElementById('loginTabBtn').className = isSignUp ? "flex-1 py-2 rounded-md text-slate-400 transition" : "flex-1 py-2 rounded-md bg-accentBlue text-white transition";
+            document.getElementById('signupTabBtn').className = isSignUp ? "flex-1 py-2 rounded-md bg-accentBlue text-white transition" : "flex-1 py-2 rounded-md text-slate-400 transition";
+            document.getElementById('authSubmitBtn').innerText = isSignUp ? "Create Account" : "Sign In";
+            
+            const confirmGroup = document.getElementById('confirmPasswordGroup');
+            if (isSignUp) {
+                confirmGroup.classList.remove('hidden');
+            } else {
+                confirmGroup.classList.add('hidden');
+            }
+            displayAuthMessage('', 'text-slate-400');
+        }
+
+        function showForgotPasswordView() {
+            document.getEleme
