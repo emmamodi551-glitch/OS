@@ -213,7 +213,7 @@
             </div>
 
             <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 text-center mb-5">
-                <div class="text-3xl font-extrabold text-white font-mono">$89<span class="text-xs font-normal text-slate-400"> / month</span></div>
+                <div class="text-3xl font-extrabold text-white font-mono">\$89<span class="text-xs font-normal text-slate-400"> / month</span></div>
                 <p class="text-[11px] text-accentGreen mt-1 font-medium">Billed monthly • Cancel anytime • Immediate access</p>
             </div>
 
@@ -244,7 +244,7 @@
                 </div>
 
                 <button type="button" id="subscribeSubmitBtn" onclick="processPayment()" class="w-full bg-accentGold hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-lg text-sm transition mt-2">
-                    Checkout with Stripe ($89/mo)
+                    Checkout with Stripe (\$89/mo)
                 </button>
             </div>
         </div>
@@ -316,4 +316,378 @@
             const forgotLink = document.getElementById('forgotPwLinkContainer');
 
             if (isSignUp) {
-                confir
+                confirmGroup.classList.remove('hidden');
+                confirmInput.required = true;
+                forgotLink.classList.add('hidden');
+            } else {
+                confirmGroup.classList.add('hidden');
+                confirmInput.required = false;
+                confirmInput.value = '';
+                forgotLink.classList.remove('hidden');
+            }
+            displayAuthMessage('', 'text-slate-400');
+        }
+
+        function showForgotPasswordView() {
+            document.getElementById('authForm').classList.add('hidden');
+            document.getElementById('authTabs').classList.add('hidden');
+            document.getElementById('resetForm').classList.remove('hidden');
+            document.getElementById('resetEmailInput').value = document.getElementById('userEmailInput').value || '';
+            document.getElementById('resetNewPasswordInput').value = '';
+            displayResetMessage('', 'text-slate-400');
+        }
+
+        function cancelResetView() {
+            document.getElementById('resetForm').classList.add('hidden');
+            document.getElementById('authTabs').classList.remove('hidden');
+            document.getElementById('authForm').classList.remove('hidden');
+            displayAuthMessage('', 'text-slate-400');
+        }
+
+        function displayAuthMessage(msg, colorClass) {
+            const el = document.getElementById('authMessage');
+            el.className = `text-xs text-center mt-2 ${colorClass}`;
+            el.innerText = msg;
+        }
+
+        function displayResetMessage(msg, colorClass) {
+            const el = document.getElementById('resetMessage');
+            el.className = `text-xs text-center mt-2 ${colorClass}`;
+            el.innerText = msg;
+        }
+
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('userEmailInput').value.trim().toLowerCase();
+            const password = document.getElementById('userPasswordInput').value;
+            const accounts = getAccounts();
+
+            if (!email || !password) {
+                displayAuthMessage("Please fill out both email and password.", "text-red-400");
+                return;
+            }
+
+            if (currentAuthMode === 'signup') {
+                const confirmPassword = document.getElementById('userConfirmPasswordInput').value;
+
+                if (password.length < 6) {
+                    displayAuthMessage("Password must be at least 6 characters long.", "text-red-400");
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    displayAuthMessage("Passwords do not match.", "text-red-400");
+                    return;
+                }
+                if (accounts[email]) {
+                    displayAuthMessage("Account already exists. Please sign in or reset password.", "text-red-400");
+                    return;
+                }
+
+                // Register account
+                accounts[email] = { password: password };
+                saveAccounts(accounts);
+                
+                currentUser = email;
+                localStorage.setItem('nuel_current_user', email);
+                state = { phase: 30, isSubscribed: false, water: 0, exerciseMins: 0, noping_done: false, dw1_done: false, dw2_done: false, streak: 1 };
+                saveUserData();
+
+                displayAuthMessage("Account created successfully! Loading dashboard...", "text-accentGreen");
+                setTimeout(() => showDashboard(), 400);
+            } else {
+                // Sign In mode
+                if (!accounts[email]) {
+                    displayAuthMessage("No account found with this email. Click 'Create Account' above.", "text-red-400");
+                    return;
+                }
+                if (accounts[email].password !== password) {
+                    displayAuthMessage("Incorrect password. Click 'Forgot password?' to change it.", "text-red-400");
+                    return;
+                }
+
+                currentUser = email;
+                localStorage.setItem('nuel_current_user', email);
+                loadUserData(email);
+                showDashboard();
+            }
+        }
+
+        function handleResetPasswordSubmit(event) {
+            event.preventDefault();
+            const email = document.getElementById('resetEmailInput').value.trim().toLowerCase();
+            const newPassword = document.getElementById('resetNewPasswordInput').value;
+            const accounts = getAccounts();
+
+            if (!email) {
+                displayResetMessage("Please enter your account email.", "text-red-400");
+                return;
+            }
+            if (!accounts[email]) {
+                displayResetMessage("No registered account found with that email address.", "text-red-400");
+                return;
+            }
+            if (newPassword.length < 6) {
+                displayResetMessage("Password must be at least 6 characters.", "text-red-400");
+                return;
+            }
+
+            accounts[email].password = newPassword;
+            saveAccounts(accounts);
+            displayResetMessage("Password successfully updated! Returning to login...", "text-accentGreen");
+
+            setTimeout(() => {
+                cancelResetView();
+                switchAuthMode('login');
+                document.getElementById('userEmailInput').value = email;
+                document.getElementById('userPasswordInput').value = '';
+                displayAuthMessage("Password updated. Please sign in with your new password.", "text-accentGreen");
+            }, 800);
+        }
+
+        function checkStripeReturn() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('session') === 'success') {
+                if (currentUser) {
+                    loadUserData(currentUser);
+                    state.isSubscribed = true;
+                    if (state.phase === 30) state.phase = 60;
+                    saveUserData();
+                }
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        function initApp() {
+            checkStripeReturn();
+            if (currentUser) {
+                loadUserData(currentUser);
+                showDashboard();
+            } else {
+                showAuthScreen();
+            }
+        }
+
+        function loadUserData(email) {
+            const savedState = localStorage.getItem(`nuel_state_${email}`);
+            if (savedState) {
+                try {
+                    state = Object.assign(state, JSON.parse(savedState));
+                } catch(e) {
+                    console.error("State parse error", e);
+                }
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('nuel_current_user');
+            currentUser = null;
+            showAuthScreen();
+        }
+
+        function forceResetStorage() {
+            if (confirm("Clear local storage and reset all saved accounts?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function showAuthScreen() {
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('dashboardScreen').classList.add('hidden');
+            switchAuthMode('login');
+        }
+
+        function showDashboard() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+            document.getElementById('loggedUserDisplay').innerText = `Account: ${currentUser}`;
+            render();
+        }
+
+        function selectPhase(days) {
+            if ((days === 60 || days === 90) && !state.isSubscribed) {
+                openPaywallModal(days);
+                return;
+            }
+            state.phase = days;
+            saveUserData();
+        }
+
+        function openPaywallModal(requestedPhase) {
+            pendingRequestedPhase = requestedPhase;
+            const titleMap = {
+                60: "Unlock Phase 2: Build Momentum (60 Days)",
+                90: "Unlock Phase 3: Dominate & Lead (90 Days)"
+            };
+            document.getElementById('modalTargetTitle').innerText = titleMap[requestedPhase] || "Unlock All Tiers";
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closePaywallModal() {
+            document.getElementById('paymentModal').classList.add('hidden');
+            pendingRequestedPhase = null;
+        }
+
+        function handlePaymentMethodChange(method) {
+            selectedPaymentMethod = method;
+            const submitBtn = document.getElementById('subscribeSubmitBtn');
+            if (method.includes("Card") || method.includes("Apple") || method.includes("Google")) {
+                submitBtn.innerText = `Checkout with Stripe ($89/mo)`;
+            } else {
+                submitBtn.innerText = `Continue with ${method} ($89/mo)`;
+            }
+        }
+
+        function processPayment() {
+            const encodedEmail = encodeURIComponent(currentUser || '');
+            const checkoutUrl = `${STRIPE_PAYMENT_LINK}?prefilled_email=${encodedEmail}`;
+            window.location.href = checkoutUrl;
+        }
+
+        function saveUserData() {
+            if (currentUser) {
+                localStorage.setItem(`nuel_state_${currentUser}`, JSON.stringify(state));
+            }
+            render();
+        }
+
+        function updateWater(amount) {
+            state.water = Math.max(0, state.water + amount);
+            saveUserData();
+        }
+
+        function updateExercise(amount) {
+            state.exerciseMins = Math.max(0, state.exerciseMins + amount);
+            saveUserData();
+        }
+
+        function toggleTimer(id, defaultMinutes) {
+            let t = activeTimers[id];
+            if (t.running) {
+                clearInterval(t.interval);
+                t.running = false;
+                document.getElementById(`${id}Btn`).innerText = "Resume";
+                document.getElementById(`${id}Status`).innerText = "Status: Paused";
+            } else {
+                t.running = true;
+                document.getElementById(`${id}Btn`).innerText = "Pause";
+                document.getElementById(`${id}Status`).innerText = "Status: Running...";
+
+                t.interval = setInterval(() => {
+                    if (t.time > 0) {
+                        t.time--;
+                        updateTimerDisplay(id);
+                    } else {
+                        clearInterval(t.interval);
+                        t.running = false;
+                        t.time = defaultMinutes * 60;
+                        document.getElementById(`${id}Btn`).innerText = "Done";
+                        document.getElementById(`${id}Status`).innerText = "Status: Completed!";
+                        if (id === 'noping') state.noping_done = true;
+                        if (id === 'dw1') state.dw1_done = true;
+                        if (id === 'dw2') state.dw2_done = true;
+                        saveUserData();
+                    }
+                }, 1000);
+            }
+        }
+
+        function updateTimerDisplay(id) {
+            let t = activeTimers[id].time;
+            let mins = Math.floor(t / 60);
+            let secs = t % 60;
+            document.getElementById(`${id}Timer`).innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function resetDay() {
+            if (confirm("Reset today's tracking data?")) {
+                state.water = 0;
+                state.exerciseMins = 0;
+                state.noping_done = false;
+                state.dw1_done = false;
+                state.dw2_done = false;
+                saveUserData();
+            }
+        }
+
+        function updateProgress() {
+            let completed = 0;
+            if (state.water >= 64) completed++;
+            if (state.exerciseMins >= 30) completed++;
+            if (state.noping_done) completed++;
+            if (state.dw1_done) completed++;
+            if (state.dw2_done) completed++;
+
+            const pct = Math.round((completed / 5) * 100);
+            document.getElementById('progressBar').style.width = `${pct}%`;
+            document.getElementById('progressText').innerText = `${completed} of 5 Milestones Completed (${pct}%)`;
+        }
+
+        function render() {
+            const container = document.getElementById('phaseContainer');
+            const headerTitle = document.getElementById('phaseHeaderTitle');
+            const tierStatusText = document.getElementById('tierStatusText');
+            const badgeDisplay = document.getElementById('badgeDisplay');
+
+            const lock60 = document.getElementById('lock60');
+            const lock90 = document.getElementById('lock90');
+
+            if (state.isSubscribed) {
+                if (lock60) lock60.classList.add('hidden');
+                if (lock90) lock90.classList.add('hidden');
+                tierStatusText.innerText = "⭐ Pro Member Active";
+                tierStatusText.className = "text-[11px] font-bold text-accentGreen";
+                badgeDisplay.innerText = "Pro Member (\$89/mo)";
+                badgeDisplay.className = "text-[10px] bg-purple-950 border border-purple-600 text-purple-300 px-2 py-1 rounded font-bold uppercase";
+            } else {
+                if (lock60) lock60.classList.remove('hidden');
+                if (lock90) lock90.classList.remove('hidden');
+                tierStatusText.innerText = "🔒 Free Tier (Phases 2 & 3 Locked)";
+                tierStatusText.className = "text-[11px] font-bold text-accentGold";
+                badgeDisplay.innerText = "Free Tier";
+                badgeDisplay.className = "text-[10px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded font-bold uppercase";
+            }
+
+            ['30', '60', '90'].forEach(d => {
+                const btn = document.getElementById(`phase${d}Btn`);
+                if (btn) {
+                    if (state.phase == d) {
+                        if (d == '30') btn.className = "relative p-2.5 rounded-lg text-center border border-blue-500 bg-blue-950/40 text-blue-400 text-xs font-bold transition shadow-sm";
+                        if (d == '60') btn.className = "relative p-2.5 rounded-lg text-center border border-accentGold bg-amber-950/40 text-accentGold text-xs font-bold transition shadow-sm";
+                        if (d == '90') btn.className = "relative p-2.5 rounded-lg text-center border border-purple-500 bg-purple-950/40 text-purple-400 text-xs font-bold transition shadow-sm";
+                    } else {
+                        btn.className = "relative p-2.5 rounded-lg text-center border border-slate-700 bg-slate-900 text-slate-400 text-xs font-bold transition";
+                    }
+                }
+            });
+
+            if (state.phase == 30) {
+                container.className = "bg-cardBg border border-blue-500/50 rounded-xl p-4 shadow-lg transition-all duration-300";
+                headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-blue-400";
+                headerTitle.innerText = "Phase 1: Reset (30 Days)";
+            } else if (state.phase == 60) {
+                container.className = "bg-cardBg border border-accentGold/50 rounded-xl p-4 shadow-lg transition-all duration-300";
+                headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-accentGold";
+                headerTitle.innerText = "Phase 2: Build Momentum (60 Days)";
+            } else if (state.phase == 90) {
+                container.className = "bg-cardBg border border-purple-500/50 rounded-xl p-4 shadow-lg transition-all duration-300";
+                headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-purple-400";
+                headerTitle.innerText = "Phase 3: Dominate & Lead (90 Days)";
+            }
+
+            const phaseDescs = {
+                30: "Phase 1: Reclaim Your Energy & Foundation (Reset) — Perfect for breaking burnout and building a bulletproof daily routine.",
+                60: "Phase 2: Create Momentum & Structure Your Life (Build) — Advanced protocols, habit mastery, and sustained high performance.",
+                90: "Phase 3: Master Your Mind, Body & Leadership (Dominate) — Ultimate bio-optimization, strategic focus, and peak personal command."
+            };
+            document.getElementById('phaseDescription').innerText = phaseDescs[state.phase] || "";
+            document.getElementById('waterCount').innerText = state.water;
+            document.getElementById('exerciseMins').innerText = state.exerciseMins;
+
+            updateProgress();
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
