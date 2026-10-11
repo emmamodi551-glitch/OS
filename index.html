@@ -44,20 +44,20 @@
         <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Email Address</label>
-                <input type="email" id="userEmailInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="name@example.com">
+                <input type="email" id="userEmailInput" required autocomplete="username" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="name@example.com">
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Password</label>
-                <input type="password" id="userPasswordInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="••••••••">
+                <input type="password" id="userPasswordInput" required autocomplete="current-password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="••••••••">
             </div>
 
             <!-- Confirm Password Field (Signup only) -->
             <div id="confirmPasswordGroup" class="hidden">
                 <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Confirm Password</label>
-                <input type="password" id="userConfirmPasswordInput" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="••••••••">
+                <input type="password" id="userConfirmPasswordInput" autocomplete="new-password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="••••••••">
             </div>
 
-            <div class="flex justify-between items-center text-xs">
+            <div id="forgotPwLinkContainer" class="flex justify-between items-center text-xs">
                 <button type="button" onclick="showForgotPasswordView()" class="text-slate-400 hover:text-accentBlue underline">Forgot password?</button>
             </div>
 
@@ -65,11 +65,11 @@
             <p id="authMessage" class="text-xs text-center mt-2"></p>
         </form>
 
-        <!-- Forgot / Reset Password Form (Hidden by default) -->
+        <!-- Forgot / Reset Password Form -->
         <form id="resetForm" onsubmit="handleResetPasswordSubmit(event)" class="space-y-4 hidden">
             <div class="text-left mb-2">
                 <h3 class="text-sm font-bold text-slate-200 uppercase">Reset Password</h3>
-                <p class="text-xs text-slate-400">Enter your email and provide a new password.</p>
+                <p class="text-xs text-slate-400">Enter your email and set a new password.</p>
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Account Email</label>
@@ -180,7 +180,7 @@
                 </div>
                 <div class="flex items-center space-x-2">
                     <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                    <button type="button" id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Start</button>
+                    <button type="button" id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
                 </div>
             </div>
 
@@ -252,19 +252,19 @@
 
     <!-- Application Script -->
     <script>
-        // Stripe Configuration
         const STRIPE_PK = "pk_live_51UPL3CAknbrSNyjgk5pJNKvp6QieYUg181NysxdICDn7HI7FJ0FotgywdkuE8bnl7YPVux3Q8jBCFnpejBZbFBD200abIReUdi";
         let stripe = null;
         try {
-            stripe = Stripe(STRIPE_PK);
+            if (window.Stripe) {
+                stripe = Stripe(STRIPE_PK);
+            }
         } catch (e) {
-            console.error("Stripe initialization failed:", e);
+            console.error("Stripe init error:", e);
         }
 
-        // Paste your Stripe payment link below
         const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/YOUR_LIVE_PAYMENT_LINK_SLUG";
 
-        let currentAuthMode = 'login'; // 'login' or 'signup'
+        let currentAuthMode = 'login';
         let currentUser = localStorage.getItem('nuel_current_user');
         let selectedPaymentMethod = "Credit / Debit Card";
         let pendingRequestedPhase = null;
@@ -286,10 +286,10 @@
             dw2: { time: 90 * 60, running: false, interval: null }
         };
 
-        // --- AUTHENTICATION & CREDENTIAL MANAGEMENT ---
         function getAccounts() {
             try {
-                return JSON.parse(localStorage.getItem('nuel_accounts')) || {};
+                const stored = localStorage.getItem('nuel_accounts');
+                return stored ? JSON.parse(stored) : {};
             } catch (e) {
                 return {};
             }
@@ -302,18 +302,18 @@
         function switchAuthMode(mode) {
             currentAuthMode = mode;
             const isSignUp = (mode === 'signup');
-            document.getElementById('loginTabBtn').className = isSignUp ? "flex-1 py-2 rounded-md text-slate-400 transition" : "flex-1 py-2 rounded-md bg-accentBlue text-white transition";
-            document.getElementById('signupTabBtn').className = isSignUp ? "flex-1 py-2 rounded-md bg-accentBlue text-white transition" : "flex-1 py-2 rounded-md text-slate-400 transition";
+            
+            document.getElementById('loginTabBtn').className = isSignUp 
+                ? "flex-1 py-2 rounded-md text-slate-400 transition" 
+                : "flex-1 py-2 rounded-md bg-accentBlue text-white transition";
+            document.getElementById('signupTabBtn').className = isSignUp 
+                ? "flex-1 py-2 rounded-md bg-accentBlue text-white transition" 
+                : "flex-1 py-2 rounded-md text-slate-400 transition";
             document.getElementById('authSubmitBtn').innerText = isSignUp ? "Create Account" : "Sign In";
             
             const confirmGroup = document.getElementById('confirmPasswordGroup');
-            if (isSignUp) {
-                confirmGroup.classList.remove('hidden');
-            } else {
-                confirmGroup.classList.add('hidden');
-            }
-            displayAuthMessage('', 'text-slate-400');
-        }
+            const confirmInput = document.getElementById('userConfirmPasswordInput');
+            const forgotLink = document.getElementById('forgotPwLinkContainer');
 
-        function showForgotPasswordView() {
-            document.getEleme
+            if (isSignUp) {
+                confir
