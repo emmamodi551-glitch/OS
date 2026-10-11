@@ -2,8 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nuel Core: Human OS</title>
+
+    <!-- PWA & Mobile Meta Tags -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Human OS">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><circle cx='50' cy='50' r='35' stroke='%233b82f6' stroke-width='8' fill='none'/><path d='M35 50 L46 62 L65 38' stroke='%2310b981' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><circle cx='50' cy='50' r='35' stroke='%233b82f6' stroke-width='8' fill='none'/><path d='M35 50 L46 62 L65 38' stroke='%2310b981' stroke-width='8' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
+
+    <!-- Embedded Web App Manifest Data URL -->
+    <link rel="manifest" id="manifestPlaceholder">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -22,12 +34,35 @@
             }
         }
     </script>
+
+    <!-- Stripe.js SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
 </head>
-<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 font-sans">
+<body class="bg-darkBg text-slate-100 min-h-screen flex flex-col items-center justify-start p-4 sm:p-6 font-sans select-none pb-12">
+
+    <!-- PWA Install Banner (Displays when install prompt is triggered) -->
+    <aside id="installAppBanner" aria-label="Install App" class="w-full max-w-lg mb-4 hidden bg-gradient-to-r from-blue-900/60 to-slate-800 border border-accentBlue/60 rounded-xl p-3 flex items-center justify-between shadow-xl">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-lg bg-accentBlue/20 border border-accentBlue flex items-center justify-center text-accentBlue font-black text-sm">
+                OS
+            </div>
+            <div>
+                <p class="text-xs font-bold text-white tracking-wide">Install Nuel Core</p>
+                <p class="text-[10px] text-slate-300">Run as a standalone app on your device</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button type="button" onclick="installPWA()" class="bg-accentBlue hover:bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">Install</button>
+            <button type="button" onclick="dismissInstallBanner()" class="text-slate-400 hover:text-white text-xs px-2 py-1">✕</button>
+        </div>
+    </aside>
 
     <!-- AUTHENTICATION VIEW -->
-    <div id="authScreen" class="w-full max-w-md bg-cardBg border border-slate-700 rounded-2xl p-6 shadow-xl mt-12">
+    <div id="authScreen" class="w-full max-w-md bg-cardBg border border-slate-700 rounded-2xl p-6 shadow-xl mt-8">
         <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 mb-3 text-accentBlue font-mono font-bold text-lg">
+                NU
+            </div>
             <h1 class="text-xl font-bold tracking-wider text-slate-100 uppercase">Nuel Core: Human OS</h1>
             <p class="text-xs text-slate-400 mt-1">Rebuild Your Mind. Optimize Your Body. Upgrade Your Life.</p>
         </div>
@@ -41,7 +76,7 @@
         <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-4">
             <div>
                 <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Email Address</label>
-                <input type="email" id="userEmailInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="name@example.com">
+                <input type="email" id="userEmailInput" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-slate-100 focus:outline-none focus:border-accentBlue" placeholder="emmanuel@nuelpropertyservices.com">
             </div>
             <div>
                 <label class="block text-xs font-semibold uppercase text-slate-300 mb-1">Password</label>
@@ -51,8 +86,9 @@
             <p id="authErrorMsg" class="text-xs text-red-400 text-center mt-2"></p>
         </form>
 
-        <div class="mt-6 text-center border-t border-slate-700 pt-4">
-            <button type="button" onclick="forceResetStorage()" class="text-[11px] text-slate-500 hover:text-slate-300 underline">Clear Browser Cache & Reset</button>
+        <div class="mt-6 text-center border-t border-slate-700 pt-4 flex items-center justify-between">
+            <button type="button" onclick="forceResetStorage()" class="text-[11px] text-slate-500 hover:text-slate-300 underline">Reset Storage</button>
+            <span class="text-[10px] text-slate-600 font-mono">v1.2.0 PWA</span>
         </div>
     </div>
 
@@ -66,26 +102,28 @@
                 <p id="loggedUserDisplay" class="text-xs text-slate-400">Profile Active</p>
             </div>
             <div class="flex items-center space-x-2">
-                <span id="badgeDisplay" class="text-[10px] bg-purple-950 border border-purple-600 text-purple-300 px-2 py-1 rounded font-bold uppercase">All Tiers Unlocked</span>
+                <span id="badgeDisplay" class="text-[10px] px-2 py-1 rounded font-bold uppercase transition">Free Tier</span>
                 <button type="button" onclick="logout()" class="text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded-lg transition">Sign Out</button>
             </div>
         </header>
 
-        <!-- Phase Selector Banner (All Unlocked for Free) -->
+        <!-- Phase Selector Banner -->
         <div id="phaseContainer" class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg transition-all duration-300">
             <div class="flex justify-between items-center mb-3">
                 <h2 id="phaseHeaderTitle" class="text-xs font-semibold uppercase tracking-wider text-accentGold">Phase 1: Reset (30 Days)</h2>
-                <span class="text-[11px] text-accentGreen font-bold">🟢 Free Access Active</span>
+                <span id="tierStatusText" class="text-[11px] font-bold">🟢 Free Tier Active</span>
             </div>
             <div class="grid grid-cols-3 gap-2">
-                <button type="button" onclick="setPhase(30)" id="phase30Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
-                    Phase 1<br><span class="text-[10px] font-normal text-slate-400">30 Days (Reset)[span_0](start_span)[span_0](end_span)</span>
+                <button type="button" onclick="selectPhase(30)" id="phase30Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
+                    Phase 1<br><span class="text-[10px] font-normal text-slate-400">30 Days (Reset)</span>
                 </button>
-                <button type="button" onclick="setPhase(60)" id="phase60Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
-                    Phase 2<br><span class="text-[10px] font-normal text-slate-400">60 Days (Build)[span_1](start_span)[span_1](end_span)</span>
+                <button type="button" onclick="selectPhase(60)" id="phase60Btn" class="relative p-2.5 rounded-lg text-center border text-xs font-bold transition">
+                    <span id="lock60" class="absolute top-1 right-1 text-[11px]">🔒</span>
+                    Phase 2<br><span class="text-[10px] font-normal text-slate-400">60 Days (Build)</span>
                 </button>
-                <button type="button" onclick="setPhase(90)" id="phase90Btn" class="p-2.5 rounded-lg text-center border text-xs font-bold transition">
-                    Phase 3<br><span class="text-[10px] font-normal text-slate-400">90 Days (Dominate)[span_2](start_span)[span_2](end_span)</span>
+                <button type="button" onclick="selectPhase(90)" id="phase90Btn" class="relative p-2.5 rounded-lg text-center border text-xs font-bold transition">
+                    <span id="lock90" class="absolute top-1 right-1 text-[11px]">🔒</span>
+                    Phase 3<br><span class="text-[10px] font-normal text-slate-400">90 Days (Dominate)</span>
                 </button>
             </div>
             <p id="phaseDescription" class="text-xs text-slate-300 mt-3 italic text-center"></p>
@@ -95,288 +133,5 @@
         <div class="bg-cardBg border border-slate-700 rounded-xl p-4 shadow-lg text-center">
             <div class="flex justify-between items-center mb-2">
                 <span class="text-xs font-semibold uppercase tracking-wide text-slate-300">Daily Execution Score</span>
-                <span id="streakCount" class="text-xs bg-emerald-950 border border-emerald-800 text-accentGreen px-2 py-0.5 rounded-full font-mono">Streak: 1 Day</span>
-            </div>
-            <div class="bg-slate-900 rounded-full h-3 p-0.5 border border-slate-700">
-                <div id="progressBar" class="bg-accentGreen h-full rounded-full transition-all duration-300" style="width: 0%;"></div>
-            </div>
-            <p id="progressText" class="text-xs text-slate-400 mt-2">0 of 5 Milestones Completed (0%)</p>
-        </div>
-
-        <!-- Core Trackers Container -->
-        <div class="space-y-3">
-            <!-- 1. Water Intake Module -->
-            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
-                <div>
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Water Intake</h3>
-                    <p class="text-xs text-slate-400">Target: <span id="waterCount">0</span> / 64 oz</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button type="button" onclick="updateWater(-8)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
-                    <button type="button" onclick="updateWater(8)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+</button>
-                </div>
-            </div>
-
-            <!-- 2. Physical Execution Module -->
-            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
-                <div>
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Physical Training</h3>
-                    <p class="text-xs text-slate-400">Target: <span id="exerciseMins">0</span> / 30 mins (Run/Ride/Bodyweight)</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button type="button" onclick="updateExercise(-10)" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">-</button>
-                    <button type="button" onclick="updateExercise(15)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">+15m</button>
-                </div>
-            </div>
-
-            <!-- 3. No-Ping Hour Module -->
-            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
-                <div>
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">No-Ping Hour</h3>
-                    <p id="nopingStatus" class="text-xs text-slate-400">Zero notifications</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span id="nopingTimer" class="font-mono text-sm text-slate-200">60:00</span>
-                    <button type="button" id="nopingBtn" onclick="toggleTimer('noping', 60)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Start</button>
-                </div>
-            </div>
-
-            <!-- 4. Deep Work #1 Module -->
-            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
-                <div>
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #1 (90m)</h3>
-                    <p id="dw1Status" class="text-xs text-slate-400">Primary focus block</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span id="dw1Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                    <button type="button" id="dw1Btn" onclick="toggleTimer('dw1', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Start</button>
-                </div>
-            </div>
-
-            <!-- 5. Deep Work #2 Module -->
-            <div class="bg-cardBg border border-slate-700 rounded-xl p-4 flex items-center justify-between shadow-lg">
-                <div>
-                    <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-300">Deep Work #2 (90m)</h3>
-                    <p id="dw2Status" class="text-xs text-slate-400">Secondary focus block</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span id="dw2Timer" class="font-mono text-sm text-slate-200">90:00</span>
-                    <button type="button" id="dw2Btn" onclick="toggleTimer('dw2', 90)" class="bg-accentBlue hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-bold transition">Start</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer Actions -->
-        <footer class="text-center pt-2 pb-6 space-y-2">
-            <button type="button" onclick="resetDay()" class="text-xs text-slate-500 hover:text-slate-300 underline transition block mx-auto">Reset Today's Progress</button>
-        </footer>
-    </div>
-
-    <!-- Application Script -->
-    <script>
-        let currentUser = localStorage.getItem('nuel_current_user');
-
-        let state = {
-            phase: 30,
-            water: 0,
-            exerciseMins: 0,
-            noping_done: false,
-            dw1_done: false,
-            dw2_done: false,
-            streak: 1
-        };
-
-        let activeTimers = {
-            noping: { time: 60 * 60, running: false, interval: null },
-            dw1: { time: 90 * 60, running: false, interval: null },
-            dw2: { time: 90 * 60, running: false, interval: null }
-        };
-
-        function switchAuthTab(mode) {
-            const isSignUp = (mode === 'signup');
-            document.getElementById('loginTabBtn').className = isSignUp ? "flex-1 py-2 rounded-md text-slate-400 transition" : "flex-1 py-2 rounded-md bg-accentBlue text-white transition";
-            document.getElementById('signupTabBtn').className = isSignUp ? "flex-1 py-2 rounded-md bg-accentBlue text-white transition" : "flex-1 py-2 rounded-md text-slate-400 transition";
-            document.getElementById('authSubmitBtn').innerText = isSignUp ? "Create Account" : "Sign In";
-        }
-
-        function initApp() {
-            if (currentUser) {
-                showDashboard();
-            } else {
-                showAuthScreen();
-            }
-        }
-
-        function handleAuthSubmit(event) {
-            event.preventDefault();
-            const emailInput = document.getElementById('userEmailInput').value.trim();
-            if (!emailInput) return;
-
-            currentUser = emailInput;
-            localStorage.setItem('nuel_current_user', emailInput);
-            
-            const savedState = localStorage.getItem(`nuel_state_${emailInput}`);
-            if (savedState) {
-                try {
-                    state = JSON.parse(savedState);
-                } catch(e) {
-                    console.error("Error parsing user state", e);
-                }
-            }
-
-            showDashboard();
-        }
-
-        function logout() {
-            localStorage.removeItem('nuel_current_user');
-            currentUser = null;
-            showAuthScreen();
-        }
-
-        function forceResetStorage() {
-            if (confirm("Clear local cache and restart session?")) {
-                localStorage.clear();
-                location.reload();
-            }
-        }
-
-        function showAuthScreen() {
-            document.getElementById('authScreen').classList.remove('hidden');
-            document.getElementById('dashboardScreen').classList.add('hidden');
-        }
-
-        function showDashboard() {
-            document.getElementById('authScreen').classList.add('hidden');
-            document.getElementById('dashboardScreen').classList.remove('hidden');
-            document.getElementById('loggedUserDisplay').innerText = `Account: ${currentUser}`;
-            render();
-        }
-
-        function setPhase(days) {
-            state.phase = days;
-            saveUserData();
-        }
-
-        function saveUserData() {
-            if (currentUser) {
-                localStorage.setItem(`nuel_state_${currentUser}`, JSON.stringify(state));
-            }
-            render();
-        }
-
-        function updateWater(amount) {
-            state.water = Math.max(0, state.water + amount);
-            saveUserData();
-        }
-
-        function updateExercise(amount) {
-            state.exerciseMins = Math.max(0, state.exerciseMins + amount);
-            saveUserData();
-        }
-
-        function toggleTimer(id, defaultMinutes) {
-            let t = activeTimers[id];
-            if (t.running) {
-                clearInterval(t.interval);
-                t.running = false;
-                document.getElementById(`${id}Btn`).innerText = "Resume";
-                document.getElementById(`${id}Status`).innerText = "Status: Paused";
-            } else {
-                t.running = true;
-                document.getElementById(`${id}Btn`).innerText = "Pause";
-                document.getElementById(`${id}Status`).innerText = "Status: Running...";
-
-                t.interval = setInterval(() => {
-                    if (t.time > 0) {
-                        t.time--;
-                        updateTimerDisplay(id);
-                    } else {
-                        clearInterval(t.interval);
-                        t.running = false;
-                        t.time = defaultMinutes * 60;
-                        document.getElementById(`${id}Btn`).innerText = "Done";
-                        document.getElementById(`${id}Status`).innerText = "Status: Completed!";
-                        if (id === 'noping') state.noping_done = true;
-                        if (id === 'dw1') state.dw1_done = true;
-                        if (id === 'dw2') state.dw2_done = true;
-                        saveUserData();
-                    }
-                }, 1000);
-            }
-        }
-
-        function updateTimerDisplay(id) {
-            let t = activeTimers[id].time;
-            let mins = Math.floor(t / 60);
-            let secs = t % 60;
-            document.getElementById(`${id}Timer`).innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-        }
-
-        function resetDay() {
-            if(confirm("Reset today's tracking data?")) {
-                state.water = 0;
-                state.exerciseMins = 0;
-                state.noping_done = false;
-                state.dw1_done = false;
-                state.dw2_done = false;
-                saveUserData();
-            }
-        }
-
-        function render() {
-            const container = document.getElementById('phaseContainer');
-            const headerTitle = document.getElementById('phaseHeaderTitle');
-
-            ['30', '60', '90'].forEach(d => {
-                const btn = document.getElementById(`phase${d}Btn`);
-                if (btn) {
-                    if (state.phase == d) {
-                        if (d == '30') btn.className = "p-2.5 rounded-lg text-center border border-blue-500 bg-blue-950/40 text-blue-400 text-xs font-bold transition shadow-sm";
-                        if (d == '60') btn.className = "p-2.5 rounded-lg text-center border border-accentGold bg-amber-950/40 text-accentGold text-xs font-bold transition shadow-sm";
-                        if (d == '90') btn.className = "p-2.5 rounded-lg text-center border border-purple-500 bg-purple-950/40 text-purple-400 text-xs font-bold transition shadow-sm";
-                    } else {
-                        btn.className = "p-2.5 rounded-lg text-center border border-slate-700 bg-slate-900 text-slate-400 text-xs font-bold transition";
-                    }
-                }
-            });
-
-            if (state.phase == 30) {
-                container.className = "bg-cardBg border border-blue-500/50 rounded-xl p-4 shadow-lg transition-all duration-300";
-                headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-blue-400";
-                headerTitle.innerText = "Phase 1: Reset (30 Days)[span_3](start_span)[span_3](end_span)";
-            } else if (state.phase == 60) {
-                container.className = "bg-cardBg border border-accentGold/50 rounded-xl p-4 shadow-lg transition-all duration-300";
-                headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-accentGold";
-                headerTitle.innerText = "Phase 2: Build Momentum (60 Days)[span_4](start_span)[span_4](end_span)";
-            } else if (state.phase == 90) {
-                container.className = "bg-cardBg border border-purple-500/50 rounded-xl p-4 shadow-lg transition-all duration-300";
-                headerTitle.className = "text-xs font-semibold uppercase tracking-wider text-purple-400";
-                headerTitle.innerText = "Phase 3: Dominate & Lead (90 Days)[span_5](start_span)[span_5](end_span)";
-            }
-
-            const phaseDescs = {
-                30: "Phase 1: Reclaim Your Energy & Foundation (Reset)[span_6](start_span)[span_6](end_span) — Perfect for breaking burnout and building a bulletproof daily routine.",
-                60: "Phase 2: Create Momentum & Structure Your Life (Build)[span_7](start_span)[span_7](end_span) — Advanced protocols, habit mastery, and sustained high performance.",
-                90: "Phase 3: Master Your Mind, Body & Leadership (Dominate)[span_8](start_span)[span_8](end_span) — Ultimate bio-optimization, strategic focus, and peak personal command."
-            };
-            document.getElementById('phaseDescription').innerText = phaseDescs[state.phase] || "";
-            document.getElementById('waterCount').innerText = state.water;
-            document.getElementById('exerciseMins').innerText = state.exerciseMins;
-
-            let scoreCount = 0;
-            if (state.water >= 64) scoreCount++;
-            if (state.exerciseMins >= 30) scoreCount++;
-            if (state.noping_done) scoreCount++;
-            if (state.dw1_done) scoreCount++;
-            if (state.dw2_done) scoreCount++;
-            
-            let percentage = Math.round((scoreCount / 5) * 100);
-            document.getElementById('progressBar').style.width = `${percentage}%`;
-            document.getElementById('progressText').innerText = `${scoreCount} of 5 Milestones Completed (${percentage}%)`;
-            document.getElementById('streakCount').innerText = `Streak: ${state.streak} Days`;
-        }
-
-        window.addEventListener('DOMContentLoaded', initApp);
-    </script>
-</body>
-</html>
+                <span id="streakCount" class="text
+                    
